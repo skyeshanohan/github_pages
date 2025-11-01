@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Repository Health - Repository Ownership Tracker</title>
+    
+    <!-- Preconnect to CDN for faster loading -->
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    
+    <!-- CoreUI CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/@coreui/coreui@4.3.0/dist/css/coreui.min.css">
+    <!-- CoreUI Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@coreui/icons@2.1.0/css/all.min.css">
+    
+    <!-- Preload data file -->
+    <link rel="preload" href="data/repositories.json" as="fetch" crossorigin>
+    
+    <style>
+        :root {
+            --cui-body-bg: #f5f7fa;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-sidebar: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-sidebar: #495057;
+            --text-sidebar-active: #321fdb;
+            --border-color: #e9ecef;
+            --hover-bg: #f8f9fa;
+        }
+
+        body.dark-mode {
+            --cui-body-bg: #0d1117;
+            --bg-primary: #161b22;
+            --bg-secondary: #21262d;
+            --bg-sidebar: #161b22;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-sidebar: #c9d1d9;
+            --text-sidebar-active: #58a6ff;
+            --border-color: #30363d;
+            --hover-bg: #21262d;
+            background-color: var(--cui-body-bg);
+            color: var(--text-primary);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--cui-body-bg);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--bg-secondary) 100%);
+            transition: background-color 0.3s, color 0.3s;
+            border-right: 1px solid var(--border-color);
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dark-mode .sidebar {
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, #1a1e24 100%);
+            box-shadow: 2px 0 8px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-sidebar);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+
+        .sidebar-brand:hover {
+            color: var(--text-sidebar-active);
+        }
+
+        .sidebar-brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #321fdb 0%, #6366f1 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-section-title {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-sidebar) !important;
+            transition: all 0.2s;
+            padding: 0.75rem 1rem !important;
+            margin: 0.125rem 0.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-sidebar-active) !important;
+            transform: translateX(2px);
+        }
+
+        .sidebar .nav-link.active {
+            background: linear-gradient(90deg, rgba(50, 31, 219, 0.1) 0%, transparent 100%);
+            color: var(--text-sidebar-active) !important;
+            border-left: 3px solid var(--text-sidebar-active);
+            font-weight: 500;
+        }
+
+        .dark-mode .sidebar .nav-link.active {
+            background: linear-gradient(90deg, rgba(88, 166, 255, 0.15) 0%, transparent 100%);
+        }
+
+        .sidebar .nav-icon {
+            color: inherit;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-sidebar);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .vertical-link {
+            padding-left: 2rem !important;
+            font-size: 0.9rem;
+        }
+
+        .vertical-link .nav-icon {
+            font-size: 0.9rem;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 0.5rem 1rem;
+        }
+        
+        .sidebar-minimized {
+            width: 56px;
+        }
+
+        .sidebar-expanded {
+            width: 256px;
+        }
+
+        .main {
+            margin-left: 256px;
+            transition: margin-left 0.25s;
+        }
+
+        .main.sidebar-collapsed {
+            margin-left: 56px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+        }
+
+        .navbar {
+            background-color: var(--bg-primary) !important;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .navbar-brand,
+        .navbar-text {
+            color: var(--text-primary) !important;
+        }
+
+        .breadcrumb-container {
+            background: var(--bg-secondary);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb {
+            margin-bottom: 0;
+            background: transparent;
+            padding: 0;
+        }
+
+        .breadcrumb-item a {
+            color: var(--text-sidebar-active);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .breadcrumb-item a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-primary);
+        }
+
+        /* Quick Lookup Bar */
+        .quick-lookup-container {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .quick-lookup-wrapper {
+            max-width: 600px;
+            position: relative;
+        }
+
+        .quick-lookup-input {
+            width: 100%;
+            padding: 0.5rem 2.5rem 0.5rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .quick-lookup-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .quick-lookup-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 0.375rem 0.375rem;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .dark-mode .quick-lookup-suggestions {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .quick-lookup-suggestions.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.selected {
+            background: var(--hover-bg);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-icon {
+            color: var(--text-sidebar-active);
+        }
+
+        .health-card {
+            border-left: 4px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+            background-color: var(--bg-primary);
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .health-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .health-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .health-card.critical {
+            border-left-color: #e55353;
+        }
+
+        .health-card.warning {
+            border-left-color: #f9b115;
+        }
+
+        .health-card.info {
+            border-left-color: #321fdb;
+        }
+
+        .health-card.success {
+            border-left-color: #2eb85c;
+        }
+
+        .dark-mode .health-card {
+            background-color: var(--bg-primary);
+            border-color: var(--border-color);
+        }
+
+        .dark-mode .health-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .health-score {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .health-score.excellent {
+            color: #2eb85c;
+        }
+
+        .health-score.good {
+            color: #58a6ff;
+        }
+
+        .health-score.warning {
+            color: #f9b115;
+        }
+
+        .health-score.critical {
+            color: #e55353;
+        }
+
+        .issue-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.15s;
+        }
+
+        .issue-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .issue-item:last-child {
+            border-bottom: none;
+        }
+
+        .issue-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .issue-badge.critical {
+            background-color: rgba(229, 83, 83, 0.1);
+            color: #e55353;
+        }
+
+        .issue-badge.warning {
+            background-color: rgba(249, 177, 21, 0.1);
+            color: #f9b115;
+        }
+
+        .issue-badge.info {
+            background-color: rgba(50, 31, 219, 0.1);
+            color: #321fdb;
+        }
+
+        .dark-mode .issue-badge.critical {
+            background-color: rgba(229, 83, 83, 0.2);
+        }
+
+        .dark-mode .issue-badge.warning {
+            background-color: rgba(249, 177, 21, 0.2);
+        }
+
+        .dark-mode .issue-badge.info {
+            background-color: rgba(88, 166, 255, 0.2);
+        }
+
+        .repo-link {
+            color: inherit;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .repo-link:hover {
+            color: var(--text-sidebar-active);
+            text-decoration: underline;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar sidebar-expanded" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <i class="cil-code"></i>
+                </div>
+                <span>Repo Tracker</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">
+                        <i class="nav-icon cil-speedometer"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">
+                        <i class="nav-icon cil-list"></i> Repository Table
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="stats.html">
+                        <i class="nav-icon cil-chart"></i> Statistics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="health.html">
+                        <i class="nav-icon cil-heart"></i> Health
+                    </a>
+                </li>
+                <div class="nav-divider"></div>
+                <li class="sidebar-section">
+                    <div class="sidebar-section-title">Verticals</div>
+                    <ul class="nav" id="verticalNavLinks"></ul>
+                </li>
+                <div class="nav-divider"></div>
+                <li class="nav-item">
+                    <a class="nav-link" href="about.html">
+                        <i class="nav-icon cil-info"></i> About
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div>© 2024</div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main" id="main">
+        <!-- Header -->
+        <header class="navbar navbar-expand navbar-light bg-white border-bottom">
+            <div class="container-fluid">
+                <button class="btn btn-link d-md-none" id="sidebarToggle">
+                    <i class="cil-menu"></i>
+                </button>
+                <h4 class="navbar-brand mb-0">Repository Health Dashboard</h4>
+                <div class="navbar-nav ms-auto d-flex align-items-center gap-2">
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="orgFilterDropdown" data-coreui-toggle="dropdown" aria-expanded="false">
+                            <i class="cil-building"></i> <span id="orgFilterLabel">All Organizations</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="orgFilterDropdown" id="orgFilterMenu">
+                            <li><a class="dropdown-item" href="#" data-org="all">All Organizations</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary" id="darkModeToggle" title="Toggle dark mode">
+                        <i class="cil-moon"></i>
+                    </button>
+                    <span class="navbar-text">
+                        <i class="cil-github"></i> GitHub Pages
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Quick Lookup Bar -->
+        <div class="quick-lookup-container">
+            <div class="container-fluid">
+                <div class="quick-lookup-wrapper">
+                    <i class="cil-magnifying-glass quick-lookup-icon"></i>
+                    <input type="text" class="quick-lookup-input" id="quickLookupInput" placeholder="Search pods, managers, or verticals... (e.g., 'Vertical1-Pod1' or 'Sarah Johnson')" autocomplete="off">
+                    <div class="quick-lookup-suggestions" id="quickLookupSuggestions"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="body flex-grow-1 p-3">
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb" class="breadcrumb-container">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="index.html"><i class="cil-home"></i> Home</a></li>
+                    <li class="breadcrumb-item active">Health</li>
+                </ol>
+            </nav>
+
+            <div class="loading-spinner" id="loadingSpinner" style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <div id="healthContent" class="d-none">
+                <!-- Overall Health Score -->
+                <div class="row mb-4 g-3">
+                    <div class="col-lg-4 d-flex">
+                        <div class="card health-card w-100" style="border-left-color: #321fdb;">
+                            <div class="card-body text-center">
+                                <div class="health-score" id="overallScore">-</div>
+                                <div class="text-medium-emphasis text-uppercase fw-semibold small mb-3">Overall Health Score</div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar" id="scoreProgress" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 d-flex">
+                        <div class="card health-card critical w-100" onclick="scrollToSection('stale')">
+                            <div class="card-body text-center">
+                                <div class="fs-3 fw-bold" id="staleCount">-</div>
+                                <div class="text-medium-emphasis text-uppercase fw-semibold small">Stale Repos</div>
+                                <small class="text-muted">90+ days inactive</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 d-flex">
+                        <div class="card health-card warning w-100" onclick="scrollToSection('missing-metadata')">
+                            <div class="card-body text-center">
+                                <div class="fs-3 fw-bold" id="missingMetadataCount">-</div>
+                                <div class="text-medium-emphasis text-uppercase fw-semibold small">Missing Metadata</div>
+                                <small class="text-muted">Pod / EnvironmentType / CODEOWNERS</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 d-flex">
+                        <div class="card health-card info w-100" onclick="scrollToSection('no-activity')">
+                            <div class="card-body text-center">
+                                <div class="fs-3 fw-bold" id="noActivityCount">-</div>
+                                <div class="text-medium-emphasis text-uppercase fw-semibold small">No Activity Date</div>
+                                <small class="text-muted">Date not recorded</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 d-flex">
+                        <div class="card health-card success w-100">
+                            <div class="card-body text-center">
+                                <div class="fs-3 fw-bold" id="healthyCount">-</div>
+                                <div class="text-medium-emphasis text-uppercase fw-semibold small">Healthy</div>
+                                <small class="text-muted">All checks pass</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Issues Sections -->
+                <div class="row">
+                    <!-- Stale Repositories -->
+                    <div class="col-lg-6 mb-4" id="stale">
+                        <div class="card">
+                            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                                <strong><i class="cil-clock"></i> Stale Repositories</strong>
+                                <span class="badge bg-light text-dark" id="staleBadge">0</span>
+                            </div>
+                            <div class="card-body" id="staleRepos" style="max-height: 400px; overflow-y: auto;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Missing Metadata -->
+                    <div class="col-lg-6 mb-4" id="missing-metadata">
+                        <div class="card">
+                            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                                <strong><i class="cil-warning"></i> Missing Metadata</strong>
+                                <span class="badge bg-light text-dark" id="metadataBadge">0</span>
+                            </div>
+                            <div class="card-body" id="missingMetadataRepos" style="max-height: 400px; overflow-y: auto;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- No Activity Date -->
+                    <div class="col-lg-6 mb-4" id="no-activity">
+                        <div class="card">
+                            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                                <strong><i class="cil-calendar"></i> No Activity Date Recorded</strong>
+                                <span class="badge bg-light text-dark" id="noActivityBadge">0</span>
+                            </div>
+                            <div class="card-body" id="noActivityRepos" style="max-height: 400px; overflow-y: auto;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Issues -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card">
+                            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                                <strong><i class="cil-shield-alt"></i> Security Issues</strong>
+                                <span class="badge bg-light text-dark" id="securityBadge">0</span>
+                            </div>
+                            <div class="card-body" id="securityRepos" style="max-height: 400px; overflow-y: auto;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Completeness -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <strong><i class="cil-chart-line"></i> Data Completeness</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Pods</span>
+                                        <span id="podCompleteness">-</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" id="podProgress" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>EnvironmentType</span>
+                                        <span id="envCompleteness">-</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" id="envProgress" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>CODEOWNERS</span>
+                                        <span id="codeownersCompleteness">-</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" id="codeownersProgress" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Activity Dates</span>
+                                        <span id="activityCompleteness">-</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" id="activityProgress" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <strong>Overall Completeness</strong>
+                                        <strong id="overallCompleteness">-</strong>
+                                    </div>
+                                    <div class="progress" style="height: 12px;">
+                                        <div class="progress-bar bg-success" id="overallProgress" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CoreUI JS -->
+    <script src="https://unpkg.com/@coreui/coreui@4.3.0/dist/js/coreui.bundle.min.js" defer></script>
+    
+    <script>
+        let allRepos = [];
+        let filteredRepos = [];
+        let selectedOrg = 'all';
+        const STALE_THRESHOLD_DAYS = 90; // Configurable threshold
+
+        // Load data
+        async function loadData() {
+            try {
+                const response = await fetch('data/repositories.json');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                // Filter out archived repositories - only process active repositories
+                allRepos = (data.repositories || []).filter(repo => repo.status !== 'archived');
+                
+                populateOrgFilter();
+                applyOrgFilter();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loadingSpinner').innerHTML = 
+                    '<div class="alert alert-danger">Error loading data. Please ensure data/repositories.json exists.</div>';
+            }
+        }
+
+        function populateOrgFilter() {
+            const orgs = new Set();
+            allRepos.forEach(repo => {
+                if (repo.organization) {
+                    orgs.add(repo.organization);
+                }
+            });
+            
+            const sortedOrgs = Array.from(orgs).sort();
+            const menu = document.getElementById('orgFilterMenu');
+            
+            // Clear existing org items (keep "All Organizations" and divider)
+            const existingItems = menu.querySelectorAll('.dropdown-item:not([data-org="all"])');
+            existingItems.forEach(item => {
+                item.parentElement.remove();
+            });
+            
+            // Add org items after the divider
+            sortedOrgs.forEach(org => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a class="dropdown-item" href="#" data-org="${escapeHtml(org)}">${escapeHtml(org)}</a>`;
+                menu.appendChild(li);
+            });
+            
+            // Add event listeners to all org items
+            menu.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    selectedOrg = item.getAttribute('data-org');
+                    document.getElementById('orgFilterLabel').textContent = 
+                        selectedOrg === 'all' ? 'All Organizations' : item.textContent;
+                    applyOrgFilter();
+                });
+            });
+        }
+
+        function applyOrgFilter() {
+            if (selectedOrg === 'all') {
+                filteredRepos = allRepos;
+            } else {
+                filteredRepos = allRepos.filter(repo => repo.organization === selectedOrg);
+            }
+            
+            calculateHealth();
+        }
+
+        function calculateHealth() {
+            const now = new Date();
+            const staleThreshold = new Date(now.getTime() - (STALE_THRESHOLD_DAYS * 24 * 60 * 60 * 1000));
+
+            const issues = {
+                stale: [],
+                missingMetadata: [],
+                noActivity: [],
+                missingCompliance: [], // Pod, EnvironmentType, CODEOWNERS
+                criticalSecurity: [],
+                highSecurity: [],
+                exposedSecrets: []
+            };
+
+            let healthyCount = 0;
+            let totalScore = 0;
+            let podCount = 0;
+            let envCount = 0;
+            let codeownersCount = 0;
+            let activityCount = 0;
+
+            filteredRepos.forEach(repo => {
+                const repoIssues = [];
+                let repoScore = 100;
+
+                // Check for stale repository
+                if (repo.lastActivity) {
+                    const lastActivity = new Date(repo.lastActivity);
+                    if (lastActivity < staleThreshold && repo.status === 'active') {
+                        issues.stale.push(repo);
+                        repoIssues.push('stale');
+                        repoScore -= 30;
+                    }
+                } else {
+                    issues.noActivity.push(repo);
+                    repoIssues.push('no-activity');
+                    repoScore -= 15;
+                }
+
+                // Check for missing metadata (only Pod, EnvironmentType, CODEOWNERS)
+                const missingFields = [];
+                if (!repo.pod || repo.pod === 'No Pod Selected') missingFields.push('pod');
+                if (!repo.environmentType) missingFields.push('environmentType');
+                if (repo.codeowners !== true) missingFields.push('CODEOWNERS');
+
+                if (missingFields.length > 0) {
+                    issues.missingMetadata.push({
+                        ...repo,
+                        missingFields: missingFields
+                    });
+                    repoIssues.push('missing-metadata');
+                    repoScore -= (missingFields.length * 10);
+                }
+
+                // Check for security issues
+                const vulns = repo.vulnerabilities;
+                if (vulns) {
+                    const codeScanning = vulns.codeScanning || {};
+                    const dependabot = vulns.dependabot || {};
+                    const secretScanning = vulns.secretScanning || {};
+                    const totalCritical = (codeScanning.critical || 0) + (dependabot.critical || 0);
+                    const totalHigh = (codeScanning.high || 0) + (dependabot.high || 0);
+                    const totalSecrets = secretScanning.total || 0;
+
+                    if (totalCritical > 0) {
+                        issues.criticalSecurity.push({
+                            ...repo,
+                            criticalCount: totalCritical,
+                            codeScanning: codeScanning.critical || 0,
+                            dependabot: dependabot.critical || 0
+                        });
+                        repoIssues.push('critical-security');
+                        repoScore -= 40; // Heavy penalty for critical
+                    } else if (totalHigh > 0) {
+                        issues.highSecurity.push({
+                            ...repo,
+                            highCount: totalHigh,
+                            codeScanning: codeScanning.high || 0,
+                            dependabot: dependabot.high || 0
+                        });
+                        repoIssues.push('high-security');
+                        repoScore -= 25; // Penalty for high severity
+                    }
+
+                    if (totalSecrets > 0) {
+                        issues.exposedSecrets.push({
+                            ...repo,
+                            secretsCount: totalSecrets,
+                            secretTypes: secretScanning.secretTypes || {}
+                        });
+                        repoIssues.push('exposed-secrets');
+                        repoScore -= 30; // Heavy penalty for exposed secrets
+                    }
+                }
+
+                // Track completeness
+                if (repo.pod && repo.pod !== 'No Pod Selected') podCount++;
+                if (repo.environmentType) envCount++;
+                if (repo.codeowners === true) codeownersCount++;
+                if (repo.lastActivity) activityCount++;
+
+                // Calculate score (can't go below 0)
+                repoScore = Math.max(0, repoScore);
+                totalScore += repoScore;
+
+                // If no issues, count as healthy
+                if (repoIssues.length === 0) {
+                    healthyCount++;
+                }
+            });
+
+            // Calculate overall health score
+            const overallScore = filteredRepos.length > 0 
+                ? Math.round(totalScore / filteredRepos.length) 
+                : 100;
+
+            // Update UI
+            updateHealthDisplay(overallScore, issues, healthyCount, {
+                pods: podCount,
+                env: envCount,
+                codeowners: codeownersCount,
+                activity: activityCount
+            });
+
+            document.getElementById('loadingSpinner').classList.add('d-none');
+            document.getElementById('healthContent').classList.remove('d-none');
+        }
+
+        function updateHealthDisplay(overallScore, issues, healthyCount, completeness) {
+            // Overall score
+            const scoreEl = document.getElementById('overallScore');
+            scoreEl.textContent = overallScore;
+            scoreEl.className = 'health-score ' + 
+                (overallScore >= 90 ? 'excellent' : 
+                 overallScore >= 70 ? 'good' : 
+                 overallScore >= 50 ? 'warning' : 'critical');
+
+            document.getElementById('scoreProgress').style.width = overallScore + '%';
+            document.getElementById('scoreProgress').className = 'progress-bar ' +
+                (overallScore >= 90 ? 'bg-success' : 
+                 overallScore >= 70 ? 'bg-info' : 
+                 overallScore >= 50 ? 'bg-warning' : 'bg-danger');
+
+            // Issue counts
+            document.getElementById('staleCount').textContent = issues.stale.length;
+            document.getElementById('missingMetadataCount').textContent = issues.missingMetadata.length;
+            document.getElementById('noActivityCount').textContent = issues.noActivity.length;
+            document.getElementById('healthyCount').textContent = healthyCount;
+
+            // Update security badge
+            const totalSecurityIssues = issues.criticalSecurity.length + issues.highSecurity.length + issues.exposedSecrets.length;
+            document.getElementById('securityBadge').textContent = totalSecurityIssues;
+
+            // Badges
+            document.getElementById('staleBadge').textContent = issues.stale.length;
+            document.getElementById('metadataBadge').textContent = issues.missingMetadata.length;
+            document.getElementById('noActivityBadge').textContent = issues.noActivity.length;
+
+            // Render issue lists
+            renderIssueList('staleRepos', issues.stale, 'stale');
+            renderIssueList('missingMetadataRepos', issues.missingMetadata, 'missing-metadata');
+            renderIssueList('noActivityRepos', issues.noActivity, 'no-activity');
+            renderSecurityIssues(issues);
+
+            // Completeness metrics
+            const total = filteredRepos.length;
+            const podPercent = total > 0 ? Math.round((completeness.pods / total) * 100) : 0;
+            const envPercent = total > 0 ? Math.round((completeness.env / total) * 100) : 0;
+            const codeownersPercent = total > 0 ? Math.round((completeness.codeowners / total) * 100) : 0;
+            const activityPercent = total > 0 ? Math.round((completeness.activity / total) * 100) : 0;
+            const overallPercent = Math.round((podPercent + envPercent + codeownersPercent + activityPercent) / 4);
+
+            document.getElementById('podCompleteness').textContent = `${completeness.pods}/${total} (${podPercent}%)`;
+            document.getElementById('podProgress').style.width = podPercent + '%';
+
+            document.getElementById('envCompleteness').textContent = `${completeness.env}/${total} (${envPercent}%)`;
+            document.getElementById('envProgress').style.width = envPercent + '%';
+
+            document.getElementById('codeownersCompleteness').textContent = `${completeness.codeowners}/${total} (${codeownersPercent}%)`;
+            document.getElementById('codeownersProgress').style.width = codeownersPercent + '%';
+            
+            document.getElementById('activityCompleteness').textContent = `${completeness.activity}/${total} (${activityPercent}%)`;
+            document.getElementById('activityProgress').style.width = activityPercent + '%';
+            
+            document.getElementById('overallCompleteness').textContent = `${overallPercent}%`;
+            document.getElementById('overallProgress').style.width = overallPercent + '%';
+        }
+
+        function renderSecurityIssues(issues) {
+            const container = document.getElementById('securityRepos');
+            const allSecurityIssues = [
+                ...issues.criticalSecurity.map(r => ({ ...r, severity: 'critical' })),
+                ...issues.highSecurity.map(r => ({ ...r, severity: 'high' })),
+                ...issues.exposedSecrets.map(r => ({ ...r, severity: 'secrets' }))
+            ];
+
+            if (allSecurityIssues.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="cil-check-circle" style="font-size: 2rem; opacity: 0.3;"></i>
+                        <p class="mt-2 mb-0">No security issues found! All repositories are secure.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = allSecurityIssues.map(repo => {
+                const githubUrl = repo.githubUrl || `https://github.com/${repo.organization}/${repo.repository}`;
+                let issueBadges = '';
+                
+                if (repo.severity === 'critical') {
+                    issueBadges = `<span class="badge bg-danger me-1"><i class="cil-warning"></i> ${repo.criticalCount} Critical</span>`;
+                    if (repo.codeScanning > 0) issueBadges += `<span class="badge bg-secondary me-1">SAST: ${repo.codeScanning}</span>`;
+                    if (repo.dependabot > 0) issueBadges += `<span class="badge bg-secondary me-1">Dependabot: ${repo.dependabot}</span>`;
+                } else if (repo.severity === 'high') {
+                    issueBadges = `<span class="badge bg-warning text-dark me-1"><i class="cil-warning"></i> ${repo.highCount} High</span>`;
+                    if (repo.codeScanning > 0) issueBadges += `<span class="badge bg-secondary me-1">SAST: ${repo.codeScanning}</span>`;
+                    if (repo.dependabot > 0) issueBadges += `<span class="badge bg-secondary me-1">Dependabot: ${repo.dependabot}</span>`;
+                } else if (repo.severity === 'secrets') {
+                    issueBadges = `<span class="badge me-1" style="background-color: #9c27b0; color: white;"><i class="cil-lock-locked"></i> ${repo.secretsCount} Exposed</span>`;
+                    const secretTypes = Object.entries(repo.secretTypes || {}).map(([type, count]) => `${type}: ${count}`).join(', ');
+                    if (secretTypes) issueBadges += `<small class="d-block text-muted mt-1">${secretTypes}</small>`;
+                }
+                
+                return `
+                    <div class="issue-item mb-3 p-3 border rounded">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <a href="${githubUrl}" target="_blank" class="text-decoration-none fw-semibold">
+                                    <i class="cil-code"></i> ${escapeHtml(repo.organization)}/${escapeHtml(repo.repository)}
+                                </a>
+                                <div class="mt-2">
+                                    ${issueBadges}
+                                </div>
+                            </div>
+                            <a href="${githubUrl}/security" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                <i class="cil-external-link"></i> View
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderIssueList(containerId, repos, issueType) {
+            const container = document.getElementById(containerId);
+            
+            if (repos.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="cil-check-circle" style="font-size: 2rem; opacity: 0.3;"></i>
+                        <p class="mt-2 mb-0">No issues found! All repositories are healthy.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = repos.map(repo => {
+                const githubUrl = repo.githubUrl || `https://github.com/${repo.organization}/${repo.repository}`;
+                const daysAgo = repo.lastActivity ? calculateDaysAgo(repo.lastActivity) : null;
+                
+                let issueBadges = '';
+                if (issueType === 'stale') {
+                    issueBadges = `<span class="issue-badge critical"><i class="cil-clock"></i> ${daysAgo} days ago</span>`;
+                } else if (issueType === 'missing-metadata') {
+                    const missing = repo.missingFields || [];
+                    missing.forEach(field => {
+                        const label = field === 'environmentType' ? 'EnvironmentType' : field;
+                        issueBadges += `<span class="issue-badge warning me-1"><i class="cil-warning"></i> Missing ${label}</span>`;
+                    });
+                } else if (issueType === 'no-activity') {
+                    issueBadges = `<span class="issue-badge info"><i class="cil-calendar"></i> No date recorded</span>`;
+                }
+
+                return `
+                    <div class="issue-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <a href="${githubUrl}" target="_blank" class="repo-link">
+                                    <strong>${escapeHtml(repo.organization)}/${escapeHtml(repo.repository)}</strong>
+                                </a>
+                                <div class="mt-1">
+                                    <small class="text-muted">
+                                        Pod: ${escapeHtml(repo.pod)} | 
+                                        Vertical: ${escapeHtml(repo.vertical)} | 
+                                        Manager: ${escapeHtml(repo.engineeringManager)}
+                                    </small>
+                                </div>
+                                ${repo.description ? `<small class="text-muted d-block mt-1">${escapeHtml(repo.description)}</small>` : ''}
+                            </div>
+                            <div class="ms-2">
+                                ${issueBadges}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function calculateDaysAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Load verticals for sidebar navigation
+        async function loadVerticalsForNav() {
+            try {
+                const response = await fetch('data/repositories.json');
+                const data = await response.json();
+                // Normalize to derive verticals the same way everywhere
+                const normalize = (repos) => (repos || []).map(repo => {
+                    const n = { ...repo };
+                    let pods = [];
+                    if (Array.isArray(n.pod)) pods = n.pod.filter(p => p && p.trim() && p !== 'No Pod Selected');
+                    else if (typeof n.pod === 'string') pods = n.pod.split(',').map(p => p.trim()).filter(p => p && p !== 'No Pod Selected');
+                    if (!n.vertical || !n.vertical.trim()) {
+                        const vs = new Set();
+                        pods.forEach(p => { if (p.includes('-')) vs.add(p.split('-').slice(0, -1).join('-')); });
+                        if (vs.size > 0) n.vertical = Array.from(vs)[0];
+                        else if (pods[0] && pods[0].includes('-')) n.vertical = pods[0].split('-').slice(0, -1).join('-');
+                        else n.vertical = 'No Vertical Identified';
+                    }
+                    return n;
+                });
+                const normalized = normalize(data.repositories || []);
+                const verticalSet = new Set();
+                normalized.forEach(r => {
+                    if (r.vertical) verticalSet.add(r.vertical);
+                    if (Array.isArray(r._allVerticals)) r._allVerticals.forEach(v => v && verticalSet.add(v));
+                });
+                const verticals = [...verticalSet]
+                    .filter(v => v && v !== 'No Vertical Identified')
+                    .sort();
+                
+                const navLinksContainer = document.getElementById('verticalNavLinks');
+                if (navLinksContainer) {
+                    navLinksContainer.innerHTML = verticals.map(vertical => {
+                        const encodedVertical = encodeURIComponent(vertical);
+                        return `
+                            <li class="nav-item">
+                                <a class="nav-link vertical-link" href="vertical.html?name=${encodedVertical}">
+                                    <i class="nav-icon cil-folder"></i> ${escapeHtml(vertical)}
+                                </a>
+                            </li>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Error loading verticals:', error);
+            }
+        }
+
+        // Sidebar functionality
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const main = document.getElementById('main');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            // Disable auto-collapse on link click to keep layout stable
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            loadVerticalsForNav();
+        }
+
+        // Dark mode support
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) toggle.innerHTML = '<i class="cil-sun"></i>';
+        }
+
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', isDark.toString());
+                darkModeToggle.innerHTML = isDark ? '<i class="cil-sun"></i>' : '<i class="cil-moon"></i>';
+            });
+        }
+
+        // Initialize
+        // Quick Lookup functionality
+        let allPodsForLookup = [];
+        let allManagersForLookup = [];
+        let allVerticalsForLookup = [];
+        let podManagersForLookup = {};
+
+        async function initializeQuickLookup() {
+            try {
+                const res = await fetch('data/pod-managers.yaml');
+                if (res.ok) {
+                    const yaml = await res.text();
+                    const lines = yaml.split(/\r?\n/);
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed || trimmed.startsWith('#')) continue;
+                        const idx = trimmed.indexOf(':');
+                        if (idx === -1) continue;
+                        const key = trimmed.slice(0, idx).trim();
+                        let value = trimmed.slice(idx + 1).trim();
+                        if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                            value = value.slice(1, -1);
+                        }
+                        if (key) podManagersForLookup[key] = value;
+                    }
+                }
+            } catch {}
+
+            try {
+                const response = await fetch('data/repositories.json');
+                const data = await response.json();
+                const repos = data.repositories || [];
+                
+                const pods = new Set();
+                const managers = new Set();
+                const verticals = new Set();
+
+                repos.forEach(repo => {
+                    let podArray = [];
+                    if (Array.isArray(repo.pod)) {
+                        podArray = repo.pod.filter(p => p && p.trim() && p !== 'No Pod Selected');
+                    } else if (typeof repo.pod === 'string') {
+                        podArray = repo.pod.split(',').map(p => p.trim()).filter(p => p && p !== 'No Pod Selected');
+                    }
+                    podArray.forEach(p => pods.add(p));
+                    
+                    if (repo.vertical && repo.vertical !== 'No Vertical Identified') {
+                        verticals.add(repo.vertical);
+                    }
+                    podArray.forEach(pod => {
+                        if (pod && pod.includes('-')) {
+                            const parts = pod.split('-');
+                            const vertical = parts.slice(0, -1).join('-');
+                            if (vertical) verticals.add(vertical);
+                        }
+                    });
+                });
+
+                Object.keys(podManagersForLookup).forEach(pod => pods.add(pod));
+                Object.values(podManagersForLookup).forEach(manager => managers.add(manager));
+
+                allPodsForLookup = Array.from(pods).sort();
+                allManagersForLookup = Array.from(managers).sort();
+                allVerticalsForLookup = Array.from(verticals).sort();
+            } catch {}
+        }
+
+        function showQuickLookupSuggestions(query) {
+            const suggestions = document.getElementById('quickLookupSuggestions');
+            if (!suggestions) return;
+
+            if (!query || query.length < 2) {
+                suggestions.classList.remove('show');
+                return;
+            }
+
+            const q = query.toLowerCase();
+            const matches = [];
+
+            allPodsForLookup.forEach(pod => {
+                if (pod.toLowerCase().includes(q)) {
+                    matches.push({ type: 'pod', name: pod, display: pod, icon: 'cil-layers' });
+                }
+            });
+
+            allManagersForLookup.forEach(manager => {
+                if (manager.toLowerCase().includes(q)) {
+                    matches.push({ type: 'manager', name: manager, display: manager, icon: 'cil-user' });
+                }
+            });
+
+            allVerticalsForLookup.forEach(vertical => {
+                if (vertical.toLowerCase().includes(q)) {
+                    matches.push({ type: 'vertical', name: vertical, display: vertical, icon: 'cil-folder' });
+                }
+            });
+
+            if (matches.length === 0) {
+                suggestions.classList.remove('show');
+                return;
+            }
+
+            suggestions.innerHTML = matches.slice(0, 10).map(match => `
+                <div class="suggestion-item" data-type="${match.type}" data-name="${escapeHtml(match.name)}">
+                    <i class="cil ${match.icon} suggestion-icon"></i>
+                    <span>${escapeHtml(match.display)}</span>
+                </div>
+            `).join('');
+
+            suggestions.classList.add('show');
+
+            suggestions.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const type = item.dataset.type;
+                    const name = item.dataset.name;
+                    if (type === 'pod') {
+                        window.location.href = `pod.html?name=${encodeURIComponent(name)}`;
+                    } else if (type === 'manager') {
+                        window.location.href = `manager.html?name=${encodeURIComponent(name)}`;
+                    } else if (type === 'vertical') {
+                        window.location.href = `vertical.html?name=${encodeURIComponent(name)}`;
+                    }
+                });
+            });
+        }
+
+        const quickLookupInput = document.getElementById('quickLookupInput');
+        if (quickLookupInput) {
+            quickLookupInput.addEventListener('input', (e) => {
+                showQuickLookupSuggestions(e.target.value);
+            });
+
+            quickLookupInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    const suggestions = document.getElementById('quickLookupSuggestions');
+                    if (suggestions) suggestions.classList.remove('show');
+                }, 200);
+            });
+
+            quickLookupInput.addEventListener('focus', (e) => {
+                if (e.target.value) {
+                    showQuickLookupSuggestions(e.target.value);
+                }
+            });
+        }
+
+        loadData().then(() => {
+            initializeQuickLookup();
+        });
+        initSidebar();
+    </script>
+</body>
+</html>
+

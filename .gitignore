@@ -1,0 +1,23 @@
+# GitHub cache
+data/.github-cache.json
+data/*.backup.*.json
+
+# Node modules
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,738 @@
+{
+  "metadata": {
+    "lastUpdated": "2025-10-31T15:46:15.062Z",
+    "version": "2.0",
+    "source": "GitHub API sync",
+    "syncedAt": "2025-10-31T15:46:15.062Z",
+    "organizations": [
+      "Skyeshanohan"
+    ],
+    "totalRepos": 12,
+    "updated": 12,
+    "skipped": 0,
+    "errors": 0,
+    "orgStats": [
+      {
+        "updated": 12,
+        "skipped": 0,
+        "errors": 0
+      }
+    ]
+  },
+  "repositories": [
+    {
+      "organization": "skyeshanohan",
+      "repository": "Repository1",
+      "pod": [
+        "Vertical1-Pod1",
+        "Vertical3-Pod1"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "",
+      "status": "active",
+      "lastActivity": "2025-05-15",
+      "githubUrl": "https://github.com/skyeshanohan/Repository1",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-05-15T15:59:49Z",
+        "pushedAt": "2025-05-15T15:59:49Z",
+        "defaultBranch": "main",
+        "topics": [
+          "env-production",
+          "pod-team1"
+        ]
+      },
+      "codeowners": false,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "Repository-4",
+      "pod": [
+        "Vertical3-Pod2"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "",
+      "status": "active",
+      "lastActivity": "2025-05-15",
+      "githubUrl": "https://github.com/skyeshanohan/Repository-4",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-05-15T16:01:14Z",
+        "pushedAt": "2025-05-15T16:01:14Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "Repository-5",
+      "pod": [
+        "Vertical1-Pod1",
+        "Vertical3-Pod1"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "",
+      "status": "active",
+      "lastActivity": "2025-05-15",
+      "githubUrl": "https://github.com/skyeshanohan/Repository-5",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-05-15T16:01:31Z",
+        "pushedAt": "2025-05-15T16:01:31Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "Repository2",
+      "pod": [
+        "Vertical1-Pod1",
+        "Vertical3-Pod1"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "",
+      "status": "active",
+      "lastActivity": "2025-05-15",
+      "githubUrl": "https://github.com/skyeshanohan/Repository2",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-05-15T16:00:07Z",
+        "pushedAt": "2025-05-15T16:00:07Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "Repository3",
+      "pod": [
+        "Vertical2-Pod1",
+        "Vertical2-Pod2"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "",
+      "status": "active",
+      "lastActivity": "2025-05-15",
+      "githubUrl": "https://github.com/skyeshanohan/Repository3",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-05-15T16:00:28Z",
+        "pushedAt": "2025-05-15T16:00:28Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "GHAS",
+      "pod": [
+        "Vertical1-Pod1",
+        "Vertical3-Pod1"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "Shell",
+      "status": "active",
+      "lastActivity": "2025-06-26",
+      "githubUrl": "https://github.com/skyeshanohan/GHAS",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-06-16T14:21:34Z",
+        "pushedAt": "2025-06-26T15:33:14Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "docs",
+      "pod": [
+        "Vertical1-Pod1",
+        "Vertical3-Pod1"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "",
+      "status": "active",
+      "lastActivity": "2025-09-17",
+      "githubUrl": "https://github.com/skyeshanohan/docs",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-07-11T16:51:24Z",
+        "pushedAt": "2025-09-17T14:50:00Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "public-test-2",
+      "pod": [
+        "Vertical3-Pod2"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "Python",
+      "status": "active",
+      "lastActivity": "2025-06-27",
+      "githubUrl": "https://github.com/skyeshanohan/public-test-2",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-06-11T21:38:01Z",
+        "pushedAt": "2025-06-27T20:12:45Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": true,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 44,
+          "critical": 5,
+          "high": 23,
+          "medium": 16,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": "2025-06-27T20:13:58Z",
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 2,
+          "secretTypes": {
+            "aws_secret_access_key": 1,
+            "aws_access_key_id": 1
+          },
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": "2025-08-12T16:22:26Z",
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "findings-manager",
+      "pod": [
+        "Vertical1-Pod1",
+        "Vertical3-Pod1"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "Go",
+      "status": "active",
+      "lastActivity": "2025-09-16",
+      "githubUrl": "https://github.com/skyeshanohan/findings-manager",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-07-09T16:02:42Z",
+        "pushedAt": "2025-09-16T21:42:02Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 8,
+          "critical": 1,
+          "high": 2,
+          "medium": 5,
+          "low": 0,
+          "ecosystems": [
+            "go"
+          ],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": "2025-07-18T17:59:45Z",
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "public-test",
+      "pod": [
+        "Vertical2-Pod1",
+        "Vertical2-Pod2"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "Python",
+      "status": "active",
+      "lastActivity": "2025-09-16",
+      "githubUrl": "https://github.com/skyeshanohan/public-test",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-05-15T20:20:43Z",
+        "pushedAt": "2025-09-16T21:42:32Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": true,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 40,
+          "critical": 2,
+          "high": 22,
+          "medium": 16,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": "2025-05-15T20:26:39Z",
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 25,
+          "critical": 0,
+          "high": 9,
+          "medium": 11,
+          "low": 5,
+          "ecosystems": [
+            "pip"
+          ],
+          "openedLast30Days": 2,
+          "closedLast30Days": 0,
+          "lastUpdated": "2025-10-01T22:46:11Z",
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": "2025-07-10T16:54:19Z",
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "github_pages",
+      "pod": [
+        "Vertical3-Pod2"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "HTML",
+      "status": "active",
+      "lastActivity": "2025-10-31",
+      "githubUrl": "https://github.com/skyeshanohan/github_pages",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-10-31T02:41:45Z",
+        "pushedAt": "2025-10-31T04:52:01Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      }
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "Github_Auditing_Tool",
+      "pod": [
+        "Vertical3-Pod2"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "Python",
+      "status": "active",
+      "lastActivity": "2025-09-18",
+      "githubUrl": "https://github.com/skyeshanohan/Github_Auditing_Tool",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 33,
+        "createdAt": "2025-09-18T02:15:35Z",
+        "pushedAt": "2025-09-18T13:22:28Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "engineeringManager": "",
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      }
+    }
+  ]
+}

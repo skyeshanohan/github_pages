@@ -1,0 +1,67 @@
+name: Sync GitHub Repository Data
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install jsonwebtoken
+          # Or if you have a package.json:
+          # npm ci
+
+      - name: Sync GitHub Repository Data
+        env:
+          # Option 1: Single organization (backward compatible)
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+          ORG_NAME: ${{ secrets.ORG_NAME }}
+          
+          # Option 2: Multiple organizations using ORGS_LIST pattern
+          # ORGS_LIST: ${{ secrets.ORGS_LIST }}  # e.g., "org1,org2,org3"
+          # APP_ID_ORG1: ${{ secrets.APP_ID_ORG1 }}
+          # APP_PRIVATE_KEY_ORG1: ${{ secrets.APP_PRIVATE_KEY_ORG1 }}
+          # APP_ID_ORG2: ${{ secrets.APP_ID_ORG2 }}
+          # APP_PRIVATE_KEY_ORG2: ${{ secrets.APP_PRIVATE_KEY_ORG2 }}
+          
+          # Option 3: JSON configuration (most flexible)
+          # ORGS_CONFIG: ${{ secrets.ORGS_CONFIG }}  # JSON array of {name, appId, privateKey}
+        run: |
+          echo "🔄 Running full sync (always fetches all repos to catch pod/codeowners changes)"
+          node scripts/sync-github-data.js
+
+      - name: Validate JSON
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('data/repositories.json', 'utf8'))"
+          echo "✅ JSON is valid"
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data/repositories.json
+          git add data/.github-cache.json || true
+          git diff --staged --quiet || git commit -m "chore: sync repository data from GitHub API [skip ci]"
+          git push
+
+      # Note: Deployment is handled by deploy.yml workflow which runs on push
+      # No need to deploy here since we're committing directly

@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Repository Ownership Data Schema",
+  "type": "object",
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of when data was last updated"
+        },
+        "version": {
+          "type": "string",
+          "description": "Data format version"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source of the data"
+        }
+      }
+    },
+    "repositories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["organization", "repository", "pod", "vertical", "engineeringManager"],
+        "properties": {
+          "organization": {
+            "type": "string",
+            "description": "GitHub organization name"
+          },
+          "repository": {
+            "type": "string",
+            "description": "Repository name"
+          },
+          "pod": {
+            "type": "string",
+            "description": "Pod assignment"
+          },
+          "vertical": {
+            "type": "string",
+            "description": "Vertical organization"
+          },
+          "engineeringManager": {
+            "type": "string",
+            "description": "Engineering Manager name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Repository description"
+          },
+          "language": {
+            "type": "string",
+            "description": "Primary programming language"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "archived", "deprecated"],
+            "default": "active",
+            "description": "Repository status"
+          },
+          "lastActivity": {
+            "type": "string",
+            "format": "date",
+            "description": "Last activity date (YYYY-MM-DD)"
+          },
+          "githubUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Full GitHub URL (auto-generated if not provided)"
+          }
+        }
+      }
+    }
+  },
+  "required": ["repositories"]
+}
+

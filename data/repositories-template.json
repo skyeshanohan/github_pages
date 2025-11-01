@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "lastUpdated": "YYYY-MM-DDTHH:mm:ssZ",
+    "version": "2.0",
+    "source": "Manual entry or automated sync"
+  },
+  "repositories": [
+    {
+      "organization": "github-org-name",
+      "repository": "repository-name",
+      "pod": "Pod Name",
+      "vertical": "Vertical Name",
+      "engineeringManager": "Manager Name",
+      "description": "Optional: Repository description",
+      "language": "Optional: Primary programming language (e.g., TypeScript, Go, Python)",
+      "status": "active",
+      "lastActivity": "YYYY-MM-DD",
+      "githubUrl": "Optional: Full GitHub URL (auto-generated if not provided)"
+    }
+  ]
+}
+

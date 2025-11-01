@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Organization Details - Repository Ownership Tracker</title>
+    
+    <!-- Preconnect to CDN for faster loading -->
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    
+    <!-- CoreUI CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/@coreui/coreui@4.3.0/dist/css/coreui.min.css">
+    <!-- CoreUI Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@coreui/icons@2.1.0/css/all.min.css">
+    
+    <!-- Preload data file -->
+    <link rel="preload" href="data/repositories.json" as="fetch" crossorigin>
+    <link rel="prefetch" href="data/pod-managers.yaml" as="fetch">
+    
+    <style>
+        :root {
+            --cui-body-bg: #f5f7fa;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-sidebar: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-sidebar: #495057;
+            --text-sidebar-active: #321fdb;
+            --border-color: #e9ecef;
+            --hover-bg: #f8f9fa;
+        }
+
+        body.dark-mode {
+            --cui-body-bg: #0d1117;
+            --bg-primary: #161b22;
+            --bg-secondary: #21262d;
+            --bg-sidebar: #161b22;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-sidebar: #c9d1d9;
+            --text-sidebar-active: #58a6ff;
+            --border-color: #30363d;
+            --hover-bg: #21262d;
+            background-color: var(--cui-body-bg);
+            color: var(--text-primary);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--cui-body-bg);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode .card,
+        .dark-mode .navbar {
+            background-color: var(--bg-primary) !important;
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--bg-secondary) 100%);
+            transition: background-color 0.3s, color 0.3s;
+            border-right: 1px solid var(--border-color);
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dark-mode .sidebar {
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, #1a1e24 100%);
+            box-shadow: 2px 0 8px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-sidebar);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+
+        .sidebar-brand:hover {
+            color: var(--text-sidebar-active);
+        }
+
+        .sidebar-brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #321fdb 0%, #6366f1 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-section-title {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-sidebar) !important;
+            transition: all 0.2s;
+            padding: 0.75rem 1rem !important;
+            margin: 0.125rem 0.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-sidebar-active) !important;
+            transform: translateX(2px);
+        }
+
+        .sidebar .nav-link.active {
+            background: linear-gradient(90deg, rgba(50, 31, 219, 0.1) 0%, transparent 100%);
+            color: var(--text-sidebar-active) !important;
+            border-left: 3px solid var(--text-sidebar-active);
+            font-weight: 500;
+        }
+
+        .dark-mode .sidebar .nav-link.active {
+            background: linear-gradient(90deg, rgba(88, 166, 255, 0.15) 0%, transparent 100%);
+        }
+
+        .sidebar .nav-icon {
+            color: inherit;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-sidebar);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 0.5rem 1rem;
+        }
+
+        .sidebar-minimized {
+            width: 56px;
+        }
+
+        .sidebar-expanded {
+            width: 256px;
+        }
+
+        .main {
+            margin-left: 256px;
+            transition: margin-left 0.25s;
+        }
+
+        .main.sidebar-collapsed {
+            margin-left: 56px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+        }
+
+        .navbar {
+            background-color: var(--bg-primary) !important;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .navbar-brand,
+        .navbar-text {
+            color: var(--text-primary) !important;
+        }
+
+        .stats-card {
+            border-left: 4px solid #321fdb;
+            transition: transform 0.2s, box-shadow 0.2s;
+            background-color: var(--bg-primary);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stats-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .stats-card {
+            background-color: var(--bg-primary);
+            border-color: var(--border-color);
+        }
+
+        .dark-mode .stats-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-left-color: #58a6ff;
+        }
+
+        .badge-custom {
+            padding: 0.35em 0.65em;
+            font-weight: 500;
+        }
+
+        .breadcrumb-container {
+            background: var(--bg-secondary);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb {
+            margin-bottom: 0;
+            background: transparent;
+            padding: 0;
+        }
+
+        .breadcrumb-item a {
+            color: var(--text-sidebar-active);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .breadcrumb-item a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-primary);
+        }
+
+        /* Quick Lookup Bar */
+        .quick-lookup-container {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .quick-lookup-wrapper {
+            max-width: 600px;
+            position: relative;
+        }
+
+        .quick-lookup-input {
+            width: 100%;
+            padding: 0.5rem 2.5rem 0.5rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .quick-lookup-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .quick-lookup-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 0.375rem 0.375rem;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .dark-mode .quick-lookup-suggestions {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .quick-lookup-suggestions.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.selected {
+            background: var(--hover-bg);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-icon {
+            color: var(--text-sidebar-active);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .repo-link {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .repo-link:hover {
+            color: #321fdb;
+            text-decoration: underline;
+        }
+
+        .dark-mode .repo-link:hover {
+            color: #58a6ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar sidebar-expanded" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <i class="cil-code"></i>
+                </div>
+                <span>Repo Tracker</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">
+                        <i class="nav-icon cil-speedometer"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">
+                        <i class="nav-icon cil-list"></i> Repository Table
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="stats.html">
+                        <i class="nav-icon cil-chart"></i> Statistics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="health.html">
+                        <i class="nav-icon cil-heart"></i> Health
+                    </a>
+                </li>
+                <div class="nav-divider"></div>
+                <li class="sidebar-section">
+                    <div class="sidebar-section-title">Verticals</div>
+                    <ul class="nav" id="verticalNavLinks"></ul>
+                </li>
+                <div class="nav-divider"></div>
+                <li class="nav-item">
+                    <a class="nav-link" href="about.html">
+                        <i class="nav-icon cil-info"></i> About
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div>© 2024</div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main" id="main">
+        <!-- Header -->
+        <header class="navbar navbar-expand navbar-light bg-white border-bottom">
+            <div class="container-fluid">
+                <button class="btn btn-link d-md-none" id="sidebarToggle">
+                    <i class="cil-menu"></i>
+                </button>
+                <h4 class="navbar-brand mb-0" id="pageTitle">Organization Details</h4>
+                <div class="navbar-nav ms-auto">
+                    <button class="btn btn-sm btn-outline-secondary me-2" id="darkModeToggle" title="Toggle dark mode">
+                        <i class="cil-moon"></i>
+                    </button>
+                    <span class="navbar-text">
+                        <i class="cil-github"></i> GitHub Pages
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Quick Lookup Bar -->
+        <div class="quick-lookup-container">
+            <div class="container-fluid">
+                <div class="quick-lookup-wrapper">
+                    <i class="cil-magnifying-glass quick-lookup-icon"></i>
+                    <input type="text" class="quick-lookup-input" id="quickLookupInput" placeholder="Search pods, managers, or verticals... (e.g., 'Vertical1-Pod1' or 'Sarah Johnson')" autocomplete="off">
+                    <div class="quick-lookup-suggestions" id="quickLookupSuggestions"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="body flex-grow-1 p-3">
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb" class="breadcrumb-container" id="breadcrumbNav">
+                <ol class="breadcrumb mb-0">
+                </ol>
+            </nav>
+
+            <div class="loading-spinner" id="loadingSpinner" style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <div id="content" class="d-none">
+                <!-- Organization Header -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <h2 class="mb-1" id="orgName">-</h2>
+                                <p class="text-muted mb-0">Cross-vertical repository ownership and security information</p>
+                            </div>
+                            <div class="text-end">
+                                <div class="fs-3 fw-bold" id="totalReposCount">-</div>
+                                <div class="text-muted small">Repositories</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Statistics -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <strong><i class="cil-shield-alt"></i> Total Security Findings</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-4 justify-content-center">
+                            <div class="col-sm-6 col-md-4 col-lg-2 d-flex">
+                                <div class="card stats-card w-100" style="border-left-color: #e55353;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="totalIssues">0</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">Total Issues</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4 col-lg-2 d-flex">
+                                <div class="card stats-card w-100" style="border-left-color: #e55353;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="criticalTotal">0</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">Critical</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4 col-lg-2 d-flex">
+                                <div class="card stats-card w-100" style="border-left-color: #f9b115;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="highTotal">0</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">High</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4 col-lg-2 d-flex">
+                                <div class="card stats-card w-100" style="border-left-color: #39afd1;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="sastTotal">0</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">SAST</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4 col-lg-2 d-flex">
+                                <div class="card stats-card w-100" style="border-left-color: #f9b115;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="scaTotal">0</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">SCA</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-md-4 col-lg-2 d-flex">
+                                <div class="card stats-card w-100" style="border-left-color: #8750de;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="secretsTotal">0</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">Secrets</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Breakdown by Vertical -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="cil-folder"></i> Breakdown by Vertical</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Vertical</th>
+                                        <th class="text-center">Repos</th>
+                                        <th class="text-center">SAST</th>
+                                        <th class="text-center">SCA</th>
+                                        <th class="text-center">Secrets</th>
+                                        <th class="text-center">Critical</th>
+                                        <th class="text-center">High</th>
+                                        <th class="text-center">Total Issues</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="verticalBreakdownTable">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Breakdown by Pod -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="cil-layers"></i> Breakdown by Pod</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Pod</th>
+                                        <th class="text-center">Vertical</th>
+                                        <th class="text-center">Repos</th>
+                                        <th class="text-center">SAST</th>
+                                        <th class="text-center">SCA</th>
+                                        <th class="text-center">Secrets</th>
+                                        <th class="text-center">Critical</th>
+                                        <th class="text-center">High</th>
+                                        <th class="text-center">Total Issues</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="podBreakdownTable">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CoreUI JS -->
+    <script src="https://unpkg.com/@coreui/coreui@4.3.0/dist/js/coreui.bundle.min.js" defer></script>
+    
+    <script>
+        let allRepos = [];
+        let orgName = '';
+        let orgRepos = [];
+        let podManagers = {};
+
+        // Get org name from URL
+        function getOrgFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('name') || '';
+        }
+
+        // Normalize repositories
+        function normalizeRepositories(repos) {
+            return (repos || []).filter(repo => repo.status !== 'archived').map(repo => {
+                const normalized = { ...repo };
+                let podArray = [];
+                if (Array.isArray(normalized.pod)) {
+                    podArray = normalized.pod.filter(p => p && p.trim() && p !== 'No Pod Selected');
+                } else if (typeof normalized.pod === 'string') {
+                    podArray = normalized.pod.split(',').map(p => p.trim()).filter(p => p && p !== 'No Pod Selected');
+                }
+                normalized.pod = podArray.length > 0 ? podArray[0] : 'No Pod Selected';
+                normalized._allPods = podArray;
+                
+                const allVerticals = new Set();
+                podArray.forEach(pod => {
+                    if (pod && pod.includes('-')) {
+                        const parts = pod.split('-');
+                        const vertical = parts.slice(0, -1).join('-');
+                        if (vertical) allVerticals.add(vertical);
+                    }
+                });
+                if (normalized.vertical && normalized.vertical.trim() && normalized.vertical !== 'No Vertical Identified') {
+                    allVerticals.add(normalized.vertical);
+                }
+                normalized._allVerticals = Array.from(allVerticals);
+                
+                if (!normalized.vertical || !normalized.vertical.trim()) {
+                    if (allVerticals.size > 0) {
+                        normalized.vertical = Array.from(allVerticals)[0];
+                    } else if (normalized.pod && normalized.pod.includes('-') && normalized.pod !== 'No Pod Selected') {
+                        const parts = normalized.pod.split('-');
+                        normalized.vertical = parts.slice(0, -1).join('-') || '';
+                    } else {
+                        normalized.vertical = 'No Vertical Identified';
+                    }
+                }
+
+                const allManagers = new Set();
+                if (podManagers && Object.keys(podManagers).length > 0) {
+                    podArray.forEach(pod => {
+                        if (pod && podManagers[pod]) {
+                            allManagers.add(podManagers[pod]);
+                        }
+                    });
+                }
+                if (normalized.engineeringManager && normalized.engineeringManager.trim()) {
+                    allManagers.add(normalized.engineeringManager.trim());
+                }
+                normalized._allManagers = Array.from(allManagers);
+                if (!normalized.engineeringManager && allManagers.size > 0) {
+                    normalized.engineeringManager = Array.from(allManagers)[0];
+                }
+                if (!normalized.status) normalized.status = 'active';
+                return normalized;
+            });
+        }
+
+        // Load Pod -> Engineering Manager mapping
+        async function loadPodManagers() {
+            try {
+                const res = await fetch('data/pod-managers.yaml');
+                if (!res.ok) return;
+                const yaml = await res.text();
+                podManagers = parseSimpleYamlMap(yaml);
+            } catch {}
+        }
+
+        function parseSimpleYamlMap(text) {
+            const map = {};
+            if (!text) return map;
+            const lines = text.split(/\r?\n/);
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed.startsWith('#')) continue;
+                const idx = trimmed.indexOf(':');
+                if (idx === -1) continue;
+                const key = trimmed.slice(0, idx).trim();
+                let value = trimmed.slice(idx + 1).trim();
+                if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                    value = value.slice(1, -1);
+                }
+                if (key) map[key] = value;
+            }
+            return map;
+        }
+
+        // Load data
+        async function loadData() {
+            try {
+                await loadPodManagers();
+                const response = await fetch('data/repositories.json');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                allRepos = normalizeRepositories(data.repositories || []);
+                
+                orgName = decodeURIComponent(getOrgFromURL());
+                if (!orgName) {
+                    showError('No organization specified');
+                    return;
+                }
+
+                orgRepos = allRepos.filter(repo => repo.organization === orgName);
+                
+                if (orgRepos.length === 0) {
+                    showError(`No repositories found for organization: ${escapeHtml(orgName)}`);
+                    return;
+                }
+
+                renderOrgDetails();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showError('Error loading data. Please ensure data/repositories.json exists.');
+            }
+        }
+
+        function renderOrgDetails() {
+            document.getElementById('loadingSpinner').classList.add('d-none');
+            document.getElementById('content').classList.remove('d-none');
+
+            document.getElementById('pageTitle').textContent = orgName;
+            document.getElementById('orgName').textContent = orgName;
+            document.getElementById('totalReposCount').textContent = orgRepos.length;
+
+            updateBreadcrumbs();
+
+            calculateOrgStats();
+            renderVerticalBreakdown();
+            renderPodBreakdown();
+        }
+
+        function calculateOrgStats() {
+            let totalIssues = 0;
+            let totalCritical = 0;
+            let totalHigh = 0;
+            let totalSAST = 0;
+            let totalSCA = 0;
+            let totalSecrets = 0;
+
+            orgRepos.forEach(repo => {
+                const vulns = repo.vulnerabilities;
+                if (!vulns) return;
+
+                const codeScanning = vulns.codeScanning || {};
+                const dependabot = vulns.dependabot || {};
+                const secretScanning = vulns.secretScanning || {};
+
+                const repoSAST = codeScanning.total || 0;
+                const repoSCA = dependabot.total || 0;
+                const repoSecrets = secretScanning.total || 0;
+                const repoIssues = repoSAST + repoSCA + repoSecrets;
+
+                totalIssues += repoIssues;
+                totalSAST += repoSAST;
+                totalSCA += repoSCA;
+                totalSecrets += repoSecrets;
+
+                totalCritical += (codeScanning.critical || 0) + (dependabot.critical || 0);
+                totalHigh += (codeScanning.high || 0) + (dependabot.high || 0);
+            });
+
+            document.getElementById('totalIssues').textContent = totalIssues;
+            document.getElementById('criticalTotal').textContent = totalCritical;
+            document.getElementById('highTotal').textContent = totalHigh;
+            document.getElementById('sastTotal').textContent = totalSAST;
+            document.getElementById('scaTotal').textContent = totalSCA;
+            document.getElementById('secretsTotal').textContent = totalSecrets;
+        }
+
+        function renderVerticalBreakdown() {
+            const verticalStats = {};
+            
+            orgRepos.forEach(repo => {
+                const verticals = repo._allVerticals && Array.isArray(repo._allVerticals) ? repo._allVerticals : (repo.vertical ? [repo.vertical] : []);
+                verticals.forEach(vertical => {
+                    if (!vertical || vertical === 'No Vertical Identified') return;
+                    
+                    if (!verticalStats[vertical]) {
+                        verticalStats[vertical] = {
+                            repos: new Set(),
+                            sast: 0,
+                            sca: 0,
+                            secrets: 0,
+                            critical: 0,
+                            high: 0,
+                            total: 0
+                        };
+                    }
+                    
+                    verticalStats[vertical].repos.add(repo.repository);
+                    
+                    const vulns = repo.vulnerabilities;
+                    if (vulns) {
+                        const codeScanning = vulns.codeScanning || {};
+                        const dependabot = vulns.dependabot || {};
+                        const secretScanning = vulns.secretScanning || {};
+                        
+                        verticalStats[vertical].sast += codeScanning.total || 0;
+                        verticalStats[vertical].sca += dependabot.total || 0;
+                        verticalStats[vertical].secrets += secretScanning.total || 0;
+                        verticalStats[vertical].critical += (codeScanning.critical || 0) + (dependabot.critical || 0);
+                        verticalStats[vertical].high += (codeScanning.high || 0) + (dependabot.high || 0);
+                        verticalStats[vertical].total += (codeScanning.total || 0) + (dependabot.total || 0) + (secretScanning.total || 0);
+                    }
+                });
+            });
+
+            const tbody = document.getElementById('verticalBreakdownTable');
+            const entries = Object.entries(verticalStats).sort((a, b) => b[1].total - a[1].total);
+
+            if (entries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No vertical data available</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = entries.map(([vertical, stats]) => `
+                <tr>
+                    <td><a href="vertical.html?name=${encodeURIComponent(vertical)}" class="text-decoration-none"><strong>${escapeHtml(vertical)}</strong></a></td>
+                    <td class="text-center">${stats.repos.size}</td>
+                    <td class="text-center">${stats.sast}</td>
+                    <td class="text-center">${stats.sca}</td>
+                    <td class="text-center">${stats.secrets}</td>
+                    <td class="text-center">${stats.critical > 0 ? `<span class="badge bg-danger">${stats.critical}</span>` : '0'}</td>
+                    <td class="text-center">${stats.high > 0 ? `<span class="badge bg-warning text-dark">${stats.high}</span>` : '0'}</td>
+                    <td class="text-center"><strong>${stats.total}</strong></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPodBreakdown() {
+            const podStats = {};
+            
+            orgRepos.forEach(repo => {
+                const repoPods = repo._allPods && Array.isArray(repo._allPods) ? repo._allPods : (repo.pod ? [repo.pod] : []);
+                repoPods.forEach(pod => {
+                    if (!pod || pod === 'No Pod Selected') return;
+                    
+                    if (!podStats[pod]) {
+                        podStats[pod] = {
+                            repos: new Set(),
+                            vertical: pod.includes('-') ? pod.split('-').slice(0, -1).join('-') : 'Unknown',
+                            sast: 0,
+                            sca: 0,
+                            secrets: 0,
+                            critical: 0,
+                            high: 0,
+                            total: 0
+                        };
+                    }
+                    
+                    podStats[pod].repos.add(repo.repository);
+                    
+                    const vulns = repo.vulnerabilities;
+                    if (vulns) {
+                        const codeScanning = vulns.codeScanning || {};
+                        const dependabot = vulns.dependabot || {};
+                        const secretScanning = vulns.secretScanning || {};
+                        
+                        podStats[pod].sast += codeScanning.total || 0;
+                        podStats[pod].sca += dependabot.total || 0;
+                        podStats[pod].secrets += secretScanning.total || 0;
+                        podStats[pod].critical += (codeScanning.critical || 0) + (dependabot.critical || 0);
+                        podStats[pod].high += (codeScanning.high || 0) + (dependabot.high || 0);
+                        podStats[pod].total += (codeScanning.total || 0) + (dependabot.total || 0) + (secretScanning.total || 0);
+                    }
+                });
+            });
+
+            const tbody = document.getElementById('podBreakdownTable');
+            const entries = Object.entries(podStats).sort((a, b) => b[1].total - a[1].total);
+
+            if (entries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No pod data available</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = entries.map(([pod, stats]) => `
+                <tr>
+                    <td><a href="pod.html?name=${encodeURIComponent(pod)}" class="text-decoration-none"><strong>${escapeHtml(pod)}</strong></a></td>
+                    <td class="text-center">${stats.vertical ? `<a href="vertical.html?name=${encodeURIComponent(stats.vertical)}" class="text-decoration-none">${escapeHtml(stats.vertical)}</a>` : '-'}</td>
+                    <td class="text-center">${stats.repos.size}</td>
+                    <td class="text-center">${stats.sast}</td>
+                    <td class="text-center">${stats.sca}</td>
+                    <td class="text-center">${stats.secrets}</td>
+                    <td class="text-center">${stats.critical > 0 ? `<span class="badge bg-danger">${stats.critical}</span>` : '0'}</td>
+                    <td class="text-center">${stats.high > 0 ? `<span class="badge bg-warning text-dark">${stats.high}</span>` : '0'}</td>
+                    <td class="text-center"><strong>${stats.total}</strong></td>
+                </tr>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showError(message) {
+            document.getElementById('loadingSpinner').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="cil-warning"></i> ${escapeHtml(message)}
+                </div>
+            `;
+        }
+
+        function updateBreadcrumbs() {
+            const breadcrumbNav = document.getElementById('breadcrumbNav');
+            if (!breadcrumbNav || !orgName) return;
+
+            const breadcrumb = breadcrumbNav.querySelector('.breadcrumb');
+            breadcrumb.innerHTML = `
+                <li class="breadcrumb-item"><a href="index.html"><i class="cil-home"></i> Home</a></li>
+                <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                <li class="breadcrumb-item active">${escapeHtml(orgName)}</li>
+            `;
+        }
+
+        // Quick Lookup functionality
+        let allPods = [];
+        let allManagers = [];
+        let allVerticals = [];
+
+        function initializeQuickLookup() {
+            const pods = new Set();
+            const managers = new Set();
+            const verticals = new Set();
+
+            allRepos.forEach(repo => {
+                if (repo._allPods) repo._allPods.forEach(p => pods.add(p));
+                if (repo._allManagers) repo._allManagers.forEach(m => managers.add(m));
+                if (repo._allVerticals) repo._allVerticals.forEach(v => verticals.add(v));
+            });
+
+            Object.keys(podManagers).forEach(pod => pods.add(pod));
+            Object.values(podManagers).forEach(manager => managers.add(manager));
+
+            allPods = Array.from(pods).sort();
+            allManagers = Array.from(managers).sort();
+            allVerticals = Array.from(verticals).sort();
+        }
+
+        function showQuickLookupSuggestions(query) {
+            const suggestions = document.getElementById('quickLookupSuggestions');
+            
+            if (!query || query.length < 2) {
+                suggestions.classList.remove('show');
+                return;
+            }
+
+            const q = query.toLowerCase();
+            const matches = [];
+
+            allPods.forEach(pod => {
+                if (pod.toLowerCase().includes(q)) {
+                    matches.push({ type: 'pod', name: pod, display: pod, icon: 'cil-layers' });
+                }
+            });
+
+            allManagers.forEach(manager => {
+                if (manager.toLowerCase().includes(q)) {
+                    matches.push({ type: 'manager', name: manager, display: manager, icon: 'cil-user' });
+                }
+            });
+
+            allVerticals.forEach(vertical => {
+                if (vertical.toLowerCase().includes(q)) {
+                    matches.push({ type: 'vertical', name: vertical, display: vertical, icon: 'cil-folder' });
+                }
+            });
+
+            if (matches.length === 0) {
+                suggestions.classList.remove('show');
+                return;
+            }
+
+            suggestions.innerHTML = matches.slice(0, 10).map(match => `
+                <div class="suggestion-item" data-type="${match.type}" data-name="${escapeHtml(match.name)}">
+                    <i class="cil ${match.icon} suggestion-icon"></i>
+                    <span>${escapeHtml(match.display)}</span>
+                </div>
+            `).join('');
+
+            suggestions.classList.add('show');
+
+            suggestions.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const type = item.dataset.type;
+                    const name = item.dataset.name;
+                    if (type === 'pod') {
+                        window.location.href = `pod.html?name=${encodeURIComponent(name)}`;
+                    } else if (type === 'manager') {
+                        window.location.href = `manager.html?name=${encodeURIComponent(name)}`;
+                    } else if (type === 'vertical') {
+                        window.location.href = `vertical.html?name=${encodeURIComponent(name)}`;
+                    }
+                });
+            });
+        }
+
+        // Load verticals for sidebar navigation
+        async function loadVerticalsForNav() {
+            try {
+                const response = await fetch('data/repositories.json');
+                const data = await response.json();
+                const normalized = normalizeRepositories(data.repositories || []);
+                const verticals = [...new Set(normalized.map(r => r.vertical))]
+                    .filter(v => v && v !== 'No Vertical Identified')
+                    .sort();
+                
+                const navLinksContainer = document.getElementById('verticalNavLinks');
+                if (navLinksContainer) {
+                    navLinksContainer.innerHTML = verticals.map(vertical => {
+                        const encodedVertical = encodeURIComponent(vertical);
+                        return `
+                            <li class="nav-item">
+                                <a class="nav-link vertical-link" href="vertical.html?name=${encodedVertical}">
+                                    <i class="nav-icon cil-folder"></i> ${escapeHtml(vertical)}
+                                </a>
+                            </li>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Error loading verticals:', error);
+            }
+        }
+
+        // Sidebar functionality
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            loadVerticalsForNav();
+        }
+
+        // Dark mode support
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+            const toggle = document.getElementById('darkModeToggle');
+            if (toggle) toggle.innerHTML = '<i class="cil-sun"></i>';
+        }
+
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', isDark.toString());
+                darkModeToggle.innerHTML = isDark ? '<i class="cil-sun"></i>' : '<i class="cil-moon"></i>';
+            });
+        }
+
+        // Quick lookup event listeners
+        const quickLookupInput = document.getElementById('quickLookupInput');
+        if (quickLookupInput) {
+            quickLookupInput.addEventListener('input', (e) => {
+                showQuickLookupSuggestions(e.target.value);
+            });
+
+            quickLookupInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    document.getElementById('quickLookupSuggestions').classList.remove('show');
+                }, 200);
+            });
+
+            quickLookupInput.addEventListener('focus', (e) => {
+                if (e.target.value) {
+                    showQuickLookupSuggestions(e.target.value);
+                }
+            });
+        }
+
+        // Initialize
+        loadData().then(() => {
+            initializeQuickLookup();
+        });
+        initSidebar();
+    </script>
+</body>
+</html>
+

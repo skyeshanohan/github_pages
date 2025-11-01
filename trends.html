@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Trends & Analytics - Repository Ownership Tracker</title>
+    
+    <!-- Preconnect to CDN for faster loading -->
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    
+    <!-- CoreUI CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/@coreui/coreui@4.3.0/dist/css/coreui.min.css">
+    <!-- CoreUI Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@coreui/icons@2.1.0/css/all.min.css">
+    
+    <!-- Preload data file -->
+    <link rel="preload" href="data/repositories.json" as="fetch" crossorigin>
+    <link rel="prefetch" href="data/pod-managers.yaml" as="fetch">
+    
+    <style>
+        :root {
+            --cui-body-bg: #f5f7fa;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-sidebar: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-sidebar: #495057;
+            --text-sidebar-active: #321fdb;
+            --border-color: #e9ecef;
+            --hover-bg: #f8f9fa;
+        }
+
+        body.dark-mode {
+            --cui-body-bg: #0d1117;
+            --bg-primary: #161b22;
+            --bg-secondary: #21262d;
+            --bg-sidebar: #161b22;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-sidebar: #c9d1d9;
+            --text-sidebar-active: #58a6ff;
+            --border-color: #30363d;
+            --hover-bg: #21262d;
+            background-color: var(--cui-body-bg);
+            color: var(--text-primary);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--cui-body-bg);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode .card,
+        .dark-mode .navbar {
+            background-color: var(--bg-primary) !important;
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--bg-secondary) 100%);
+            transition: background-color 0.3s, color 0.3s;
+            border-right: 1px solid var(--border-color);
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dark-mode .sidebar {
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, #1a1e24 100%);
+            box-shadow: 2px 0 8px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-sidebar);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+
+        .sidebar-brand:hover {
+            color: var(--text-sidebar-active);
+        }
+
+        .sidebar-brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #321fdb 0%, #6366f1 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-section-title {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-sidebar) !important;
+            transition: all 0.2s;
+            padding: 0.75rem 1rem !important;
+            margin: 0.125rem 0.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-sidebar-active) !important;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: var(--hover-bg);
+            color: var(--text-sidebar-active) !important;
+            font-weight: 600;
+        }
+
+        .sidebar .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: var(--text-sidebar-active);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            background-color: var(--bg-sidebar);
+        }
+
+        .main {
+            margin-left: 250px;
+            transition: margin-left 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .main {
+                margin-left: 0;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+        }
+
+        .breadcrumb-container {
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+        }
+
+        .breadcrumb-item a {
+            color: var(--text-sidebar-active);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-secondary);
+        }
+
+        .stats-card {
+            border-left: 4px solid #321fdb;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .chart-card {
+            min-height: 400px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 1rem 0;
+        }
+
+        .time-range-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .time-range-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-range-btn:hover {
+            background: var(--hover-bg);
+        }
+
+        .time-range-btn.active {
+            background: var(--text-sidebar-active);
+            color: white;
+            border-color: var(--text-sidebar-active);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .quick-lookup-container {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 0;
+        }
+
+        .quick-lookup-wrapper {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .quick-lookup-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .quick-lookup-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .quick-lookup-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-item {
+            padding: 0.75rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.selected {
+            background-color: var(--hover-bg);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <i class="cil-code"></i>
+                </div>
+                <span>Repo Tracker</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">
+                        <i class="nav-icon cil-home"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">
+                        <i class="nav-icon cil-speedometer"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="trends.html">
+                        <i class="nav-icon cil-chart-line"></i> Trends
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="stats.html">
+                        <i class="nav-icon cil-bar-chart"></i> Statistics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="health.html">
+                        <i class="nav-icon cil-heart"></i> Health
+                    </a>
+                </li>
+                <div class="nav-divider"></div>
+                <li class="sidebar-section">
+                    <div class="sidebar-section-title">Verticals</div>
+                    <ul class="nav" id="verticalNavLinks"></ul>
+                </li>
+                <div class="nav-divider"></div>
+                <li class="nav-item">
+                    <a class="nav-link" href="about.html">
+                        <i class="nav-icon cil-info"></i> About
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div>© 2024</div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main" id="main">
+        <!-- Header -->
+        <header class="navbar navbar-expand navbar-light bg-white border-bottom">
+            <div class="container-fluid">
+                <button class="btn btn-link d-md-none" id="sidebarToggle">
+                    <i class="cil-menu"></i>
+                </button>
+                <h4 class="navbar-brand mb-0">Trends & Analytics</h4>
+                <div class="navbar-nav ms-auto">
+                    <button class="btn btn-sm btn-outline-secondary me-2" id="darkModeToggle" title="Toggle dark mode">
+                        <i class="cil-moon"></i>
+                    </button>
+                    <span class="navbar-text">
+                        <i class="cil-github"></i> GitHub Pages
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Quick Lookup Bar -->
+        <div class="quick-lookup-container">
+            <div class="container-fluid">
+                <div class="quick-lookup-wrapper">
+                    <i class="cil-magnifying-glass quick-lookup-icon"></i>
+                    <input type="text" class="quick-lookup-input" id="quickLookupInput" placeholder="Search pods, managers, or verticals... (e.g., 'Vertical1-Pod1' or 'Sarah Johnson')" autocomplete="off">
+                    <div class="quick-lookup-suggestions" id="quickLookupSuggestions"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="body flex-grow-1 p-3">
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb" class="breadcrumb-container">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="index.html"><i class="cil-home"></i> Home</a></li>
+                    <li class="breadcrumb-item active">Trends</li>
+                </ol>
+            </nav>
+
+            <div class="loading-spinner" id="loadingSpinner" style="display: flex; justify-content: center; align-items: center; min-height: 400px;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <div id="content" class="d-none">
+                <!-- Time Range Selector -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="cil-calendar"></i> Time Range</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="time-range-selector">
+                            <button class="time-range-btn active" data-days="7">Last 7 Days</button>
+                            <button class="time-range-btn" data-days="14">Last 14 Days</button>
+                            <button class="time-range-btn" data-days="30">Last 30 Days</button>
+                            <button class="time-range-btn" data-days="60">Last 60 Days</button>
+                            <button class="time-range-btn" data-days="90">Last 90 Days</button>
+                            <button class="time-range-btn" data-days="180">Last 180 Days</button>
+                            <button class="time-range-btn" data-days="365">Last Year</button>
+                        </div>
+                        <small class="text-muted">Note: Historical trends are based on current data. For full historical tracking, enable data snapshots.</small>
+                    </div>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="cil-filter"></i> Filters</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label small">Organization</label>
+                                <select class="form-select form-select-sm" id="filterOrg">
+                                    <option value="">All Organizations</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">Pod</label>
+                                <select class="form-select form-select-sm" id="filterPod">
+                                    <option value="">All Pods</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">Vertical</label>
+                                <select class="form-select form-select-sm" id="filterVertical">
+                                    <option value="">All Verticals</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small">Engineering Manager</label>
+                                <select class="form-select form-select-sm" id="filterManager">
+                                    <option value="">All Managers</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vulnerability Lifecycle Chart -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="cil-chart-line"></i> Vulnerability Lifecycle (New vs Remediated)</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="lifecycleChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stacked Area Chart: Issues Over Time -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="cil-chart"></i> Issues Over Time by Type</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="stackedAreaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New vs Remediated Breakdown -->
+                <div class="row mb-4">
+                    <div class="col-lg-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <strong><i class="cil-chart-line"></i> New vs Remediated by Pod</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="podComparisonChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <strong><i class="cil-chart-line"></i> New vs Remediated by Manager</strong>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="managerComparisonChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MTTR Metrics -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="cil-clock"></i> Mean Time to Remediate (MTTR)</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-3">
+                                <div class="card stats-card" style="border-left-color: #39afd1;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="avgMTTR">-</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">Average MTTR</div>
+                                        <div class="text-muted small">All Types</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stats-card" style="border-left-color: #e55353;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="mttrCritical">-</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">Critical</div>
+                                        <div class="text-muted small">Days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stats-card" style="border-left-color: #f9b115;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="mttrHigh">-</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">High</div>
+                                        <div class="text-muted small">Days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stats-card" style="border-left-color: #39afd1;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="mttrMedium">-</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">Medium</div>
+                                        <div class="text-muted small">Days</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="mttrChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Age Distribution -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="cil-clock"></i> Vulnerability Age Distribution</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="ageDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remediation Efficiency -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="cil-speedometer"></i> Remediation Efficiency Metrics</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="card stats-card" style="border-left-color: #2eb85c;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="remediationVelocity">-</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">Remediation Velocity</div>
+                                        <div class="text-muted small">Issues/Week</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card stats-card" style="border-left-color: #39afd1;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="responseTime">-</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">Avg Response Time</div>
+                                        <div class="text-muted small">Days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card stats-card" style="border-left-color: #8750de;">
+                                    <div class="card-body">
+                                        <div class="fs-4 fw-semibold" id="throughput">-</div>
+                                        <div class="text-medium-emphasis text-uppercase fw-semibold small">Throughput</div>
+                                        <div class="text-muted small">Resolved/Week</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- CoreUI JS -->
+    <script src="https://unpkg.com/@coreui/coreui@4.3.0/dist/js/coreui.bundle.min.js" defer></script>
+    
+    <script src="js/repository-tracker.js"></script>
+    <script>
+        let allRepos = [];
+        let filteredRepos = [];
+        let currentTimeRange = 30;
+        let currentFilters = {
+            org: '',
+            pod: '',
+            vertical: '',
+            manager: ''
+        };
+        let chartInstances = {};
+        let podManagers = {};
+
+        // Load pod managers mapping
+        async function loadPodManagers() {
+            try {
+                const res = await fetch('data/pod-managers.yaml');
+                if (!res.ok) return;
+                const yaml = await res.text();
+                podManagers = parseSimpleYamlMap(yaml);
+                applyPodManagers();
+            } catch (e) {
+                // Ignore if file missing
+            }
+        }
+
+        function parseSimpleYamlMap(text) {
+            const map = {};
+            if (!text) return map;
+            const lines = text.split(/\r?\n/);
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed || trimmed.startsWith('#')) continue;
+                const idx = trimmed.indexOf(':');
+                if (idx > 0) {
+                    const key = trimmed.substring(0, idx).trim();
+                    const value = trimmed.substring(idx + 1).trim();
+                    if (key && value) {
+                        map[key] = value;
+                    }
+                }
+            }
+            return map;
+        }
+
+        function applyPodManagers() {
+            if (!podManagers || Object.keys(podManagers).length === 0) return;
+            for (const repo of allRepos) {
+                const allManagers = new Set();
+                if (repo._allPods && Array.isArray(repo._allPods)) {
+                    repo._allPods.forEach(pod => {
+                        if (pod && podManagers[pod]) {
+                            allManagers.add(podManagers[pod]);
+                        }
+                    });
+                }
+                if (repo.pod && podManagers[repo.pod]) {
+                    allManagers.add(podManagers[repo.pod]);
+                }
+                if (repo.engineeringManager && repo.engineeringManager.trim()) {
+                    allManagers.add(repo.engineeringManager.trim());
+                }
+                repo._allManagers = Array.from(allManagers);
+                if (!repo.engineeringManager && repo._allManagers.length > 0) {
+                    repo.engineeringManager = repo._allManagers[0];
+                }
+            }
+        }
+
+        // Normalize repositories (same logic as main app)
+        function normalizeRepositories(repos) {
+            return (repos || []).filter(repo => repo.status !== 'archived').map(repo => {
+                const normalized = { ...repo };
+                let podArray = [];
+                if (Array.isArray(normalized.pod)) {
+                    podArray = normalized.pod.filter(p => p && p.trim() && p !== 'No Pod Selected');
+                } else if (typeof normalized.pod === 'string') {
+                    podArray = normalized.pod.split(',').map(p => p.trim()).filter(p => p && p !== 'No Pod Selected');
+                }
+                normalized.pod = podArray.length > 0 ? podArray[0] : 'No Pod Selected';
+                normalized._allPods = podArray;
+                
+                const allVerticals = new Set();
+                podArray.forEach(pod => {
+                    if (pod && pod.includes('-')) {
+                        const parts = pod.split('-');
+                        const vertical = parts.slice(0, -1).join('-');
+                        if (vertical) allVerticals.add(vertical);
+                    }
+                });
+                if (normalized.vertical && normalized.vertical.trim() && normalized.vertical !== 'No Vertical Identified') {
+                    allVerticals.add(normalized.vertical);
+                }
+                normalized._allVerticals = Array.from(allVerticals);
+                
+                if (!normalized.vertical || !normalized.vertical.trim()) {
+                    if (normalized._allVerticals.length > 0) {
+                        normalized.vertical = normalized._allVerticals[0];
+                    } else {
+                        normalized.vertical = 'No Vertical Identified';
+                    }
+                }
+                
+                // Managers will be assigned via applyPodManagers() after pod-managers.yaml loads
+                normalized._allManagers = [];
+                
+                return normalized;
+            });
+        }
+
+        // Load data
+        async function loadData() {
+            try {
+                // Load pod managers first
+                await loadPodManagers();
+                
+                const response = await fetch('data/repositories.json');
+                if (!response.ok) throw new Error('Failed to load data');
+                const data = await response.json();
+                allRepos = normalizeRepositories(data.repositories || []);
+                applyPodManagers(); // Apply managers after normalization
+                filteredRepos = allRepos;
+                updateFilters();
+                renderCharts();
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('content').classList.remove('d-none');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loadingSpinner').innerHTML = '<div class="alert alert-danger">Failed to load data</div>';
+            }
+        }
+
+        function updateFilters() {
+            // Populate filter dropdowns
+            const orgs = [...new Set(allRepos.map(r => r.organization))].sort();
+            const pods = [...new Set(allRepos.flatMap(r => {
+                const pods = r._allPods || (r.pod ? [r.pod] : []);
+                return pods.filter(p => p && p !== 'No Pod Selected');
+            }))].sort();
+            const verticals = [...new Set(allRepos.flatMap(r => {
+                const verts = r._allVerticals || (r.vertical ? [r.vertical] : []);
+                return verts.filter(v => v);
+            }))].sort();
+            const managers = [...new Set(allRepos.flatMap(r => {
+                const mgrs = r._allManagers || (r.engineeringManager ? [r.engineeringManager] : []);
+                return mgrs.filter(m => m);
+            }))].sort();
+
+            populateSelect('filterOrg', orgs);
+            populateSelect('filterPod', pods);
+            populateSelect('filterVertical', verticals);
+            populateSelect('filterManager', managers);
+        }
+
+        function populateSelect(id, options) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            const currentValue = select.value;
+            select.innerHTML = `<option value="">All</option>` + options.map(o => 
+                `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`
+            ).join('');
+            if (currentValue) select.value = currentValue;
+        }
+
+        function applyFilters() {
+            filteredRepos = allRepos.filter(repo => {
+                if (currentFilters.org && repo.organization !== currentFilters.org) return false;
+                if (currentFilters.pod) {
+                    const pods = repo._allPods || (repo.pod ? [repo.pod] : []);
+                    if (!pods.includes(currentFilters.pod)) return false;
+                }
+                if (currentFilters.vertical) {
+                    const verts = repo._allVerticals || (repo.vertical ? [repo.vertical] : []);
+                    if (!verts.includes(currentFilters.vertical)) return false;
+                }
+                if (currentFilters.manager) {
+                    const mgrs = repo._allManagers || (repo.engineeringManager ? [repo.engineeringManager] : []);
+                    if (!mgrs.includes(currentFilters.manager)) return false;
+                }
+                return true;
+            });
+            renderCharts();
+        }
+
+        function renderCharts() {
+            // Destroy existing charts
+            Object.values(chartInstances).forEach(chart => chart.destroy());
+            chartInstances = {};
+
+            renderLifecycleChart();
+            renderStackedAreaChart();
+            renderPodComparisonChart();
+            renderManagerComparisonChart();
+            renderMTTRChart();
+            renderAgeDistributionChart();
+            updateMTTRMetrics();
+            updateEfficiencyMetrics();
+        }
+
+        function renderLifecycleChart() {
+            const ctx = document.getElementById('lifecycleChart');
+            if (!ctx) return;
+
+            // Calculate new vs remediated
+            let newSAST = 0, newSCA = 0, newSecrets = 0;
+            let remediatedSAST = 0, remediatedSCA = 0, remediatedSecrets = 0;
+
+            filteredRepos.forEach(repo => {
+                const vulns = repo.vulnerabilities;
+                if (!vulns) return;
+                const cs = vulns.codeScanning || {};
+                const dep = vulns.dependabot || {};
+                const sec = vulns.secretScanning || {};
+                
+                newSAST += cs.openedLast30Days || 0;
+                newSCA += dep.openedLast30Days || 0;
+                newSecrets += sec.openedLast30Days || 0;
+                remediatedSAST += cs.closedLast30Days || 0;
+                remediatedSCA += dep.closedLast30Days || 0;
+                remediatedSecrets += sec.closedLast30Days || 0;
+            });
+
+            chartInstances.lifecycleChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['SAST', 'SCA', 'Secrets'],
+                    datasets: [
+                        {
+                            label: 'New (Last 30 Days)',
+                            data: [newSAST, newSCA, newSecrets],
+                            borderColor: '#e55353',
+                            backgroundColor: 'rgba(229, 83, 83, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Remediated (Last 30 Days)',
+                            data: [remediatedSAST, remediatedSCA, remediatedSecrets],
+                            borderColor: '#2eb85c',
+                            backgroundColor: 'rgba(46, 184, 92, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: getChartOptions('New vs Remediated Findings')
+            });
+        }
+
+        function renderStackedAreaChart() {
+            const ctx = document.getElementById('stackedAreaChart');
+            if (!ctx) return;
+
+            // Aggregate by type
+            let sast = 0, sca = 0, secrets = 0;
+            filteredRepos.forEach(repo => {
+                const vulns = repo.vulnerabilities;
+                if (!vulns) return;
+                sast += (vulns.codeScanning?.total || 0);
+                sca += (vulns.dependabot?.total || 0);
+                secrets += (vulns.secretScanning?.total || 0);
+            });
+
+            chartInstances.stackedAreaChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Current'],
+                    datasets: [
+                        {
+                            label: 'SAST',
+                            data: [sast],
+                            borderColor: '#39afd1',
+                            backgroundColor: 'rgba(57, 175, 209, 0.5)',
+                            fill: true
+                        },
+                        {
+                            label: 'SCA',
+                            data: [sca],
+                            borderColor: '#f9b115',
+                            backgroundColor: 'rgba(249, 177, 21, 0.5)',
+                            fill: true
+                        },
+                        {
+                            label: 'Secrets',
+                            data: [secrets],
+                            borderColor: '#8750de',
+                            backgroundColor: 'rgba(135, 80, 222, 0.5)',
+                            fill: true
+                        }
+                    ]
+                },
+                options: getChartOptions('Total Issues by Type')
+            });
+        }
+
+        function renderPodComparisonChart() {
+            const ctx = document.getElementById('podComparisonChart');
+            if (!ctx) return;
+
+            const podData = {};
+            filteredRepos.forEach(repo => {
+                const pods = repo._allPods || (repo.pod ? [repo.pod] : []);
+                pods.forEach(pod => {
+                    if (!pod || pod === 'No Pod Selected') return;
+                    if (!podData[pod]) podData[pod] = { new: 0, remediated: 0 };
+                    const vulns = repo.vulnerabilities;
+                    if (!vulns) return;
+                    const cs = vulns.codeScanning || {};
+                    const dep = vulns.dependabot || {};
+                    const sec = vulns.secretScanning || {};
+                    podData[pod].new += (cs.openedLast30Days || 0) + (dep.openedLast30Days || 0) + (sec.openedLast30Days || 0);
+                    podData[pod].remediated += (cs.closedLast30Days || 0) + (dep.closedLast30Days || 0) + (sec.closedLast30Days || 0);
+                });
+            });
+
+            // Sort pods by total issues (new + remediated) descending
+            const pods = Object.keys(podData).sort((a, b) => {
+                const totalA = podData[a].new + podData[a].remediated;
+                const totalB = podData[b].new + podData[b].remediated;
+                return totalB - totalA;
+            }).slice(0, 10); // Top 10 pods
+            
+            const newData = pods.map(p => podData[p].new);
+            const remediatedData = pods.map(p => podData[p].remediated);
+
+            // Use horizontal bar chart for better label readability with long pod names
+            chartInstances.podComparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: pods,
+                    datasets: [
+                        {
+                            label: 'New',
+                            data: newData,
+                            backgroundColor: '#e55353'
+                        },
+                        {
+                            label: 'Remediated',
+                            data: remediatedData,
+                            backgroundColor: '#2eb85c'
+                        }
+                    ]
+                },
+                options: {
+                    ...getChartOptions('New vs Remediated by Pod'),
+                    indexAxis: 'y', // Horizontal bar chart
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: document.body.classList.contains('dark-mode') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' },
+                            ticks: { 
+                                color: document.body.classList.contains('dark-mode') ? '#c9d1d9' : '#212529',
+                                precision: 0
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: document.body.classList.contains('dark-mode') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' },
+                            ticks: { 
+                                color: document.body.classList.contains('dark-mode') ? '#c9d1d9' : '#212529',
+                                maxRotation: 0,
+                                minRotation: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderManagerComparisonChart() {
+            const ctx = document.getElementById('managerComparisonChart');
+            if (!ctx) return;
+
+            const managerData = {};
+            filteredRepos.forEach(repo => {
+                const mgrs = repo._allManagers || (repo.engineeringManager ? [repo.engineeringManager] : []);
+                mgrs.forEach(mgr => {
+                    if (!mgr) return;
+                    if (!managerData[mgr]) managerData[mgr] = { new: 0, remediated: 0 };
+                    const vulns = repo.vulnerabilities;
+                    if (!vulns) return;
+                    const cs = vulns.codeScanning || {};
+                    const dep = vulns.dependabot || {};
+                    const sec = vulns.secretScanning || {};
+                    managerData[mgr].new += (cs.openedLast30Days || 0) + (dep.openedLast30Days || 0) + (sec.openedLast30Days || 0);
+                    managerData[mgr].remediated += (cs.closedLast30Days || 0) + (dep.closedLast30Days || 0) + (sec.closedLast30Days || 0);
+                });
+            });
+
+            // Sort managers by total issues (new + remediated) descending
+            const managers = Object.keys(managerData).sort((a, b) => {
+                const totalA = managerData[a].new + managerData[a].remediated;
+                const totalB = managerData[b].new + managerData[b].remediated;
+                return totalB - totalA;
+            }).slice(0, 10); // Top 10 managers
+            
+            const newData = managers.map(m => managerData[m].new);
+            const remediatedData = managers.map(m => managerData[m].remediated);
+
+            // Use horizontal bar chart for better label readability
+            chartInstances.managerComparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: managers,
+                    datasets: [
+                        {
+                            label: 'New',
+                            data: newData,
+                            backgroundColor: '#e55353'
+                        },
+                        {
+                            label: 'Remediated',
+                            data: remediatedData,
+                            backgroundColor: '#2eb85c'
+                        }
+                    ]
+                },
+                options: {
+                    ...getChartOptions('New vs Remediated by Manager'),
+                    indexAxis: 'y', // Horizontal bar chart
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: document.body.classList.contains('dark-mode') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' },
+                            ticks: { 
+                                color: document.body.classList.contains('dark-mode') ? '#c9d1d9' : '#212529',
+                                precision: 0
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: document.body.classList.contains('dark-mode') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' },
+                            ticks: { 
+                                color: document.body.classList.contains('dark-mode') ? '#c9d1d9' : '#212529',
+                                maxRotation: 0,
+                                minRotation: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderMTTRChart() {
+            const ctx = document.getElementById('mttrChart');
+            if (!ctx) return;
+
+            const mttrData = { SAST: [], SCA: [], Secrets: [] };
+            filteredRepos.forEach(repo => {
+                const vulns = repo.vulnerabilities;
+                if (!vulns) return;
+                if (vulns.codeScanning?.mttr) mttrData.SAST.push(vulns.codeScanning.mttr);
+                if (vulns.dependabot?.mttr) mttrData.SCA.push(vulns.dependabot.mttr);
+                if (vulns.secretScanning?.mttr) mttrData.Secrets.push(vulns.secretScanning.mttr);
+            });
+
+            const avgSAST = mttrData.SAST.length > 0 ? Math.round(mttrData.SAST.reduce((a, b) => a + b, 0) / mttrData.SAST.length) : 0;
+            const avgSCA = mttrData.SCA.length > 0 ? Math.round(mttrData.SCA.reduce((a, b) => a + b, 0) / mttrData.SCA.length) : 0;
+            const avgSecrets = mttrData.Secrets.length > 0 ? Math.round(mttrData.Secrets.reduce((a, b) => a + b, 0) / mttrData.Secrets.length) : 0;
+
+            chartInstances.mttrChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['SAST', 'SCA', 'Secrets'],
+                    datasets: [{
+                        label: 'Average MTTR (Days)',
+                        data: [avgSAST, avgSCA, avgSecrets],
+                        backgroundColor: ['#39afd1', '#f9b115', '#8750de']
+                    }]
+                },
+                options: getChartOptions('Mean Time to Remediate by Type')
+            });
+        }
+
+        function renderAgeDistributionChart() {
+            const ctx = document.getElementById('ageDistributionChart');
+            if (!ctx) return;
+
+            const ageBuckets = { '0-7': 0, '8-30': 0, '31-90': 0, '91-180': 0, '180+': 0 };
+            filteredRepos.forEach(repo => {
+                const vulns = repo.vulnerabilities;
+                if (!vulns) return;
+                ['codeScanning', 'dependabot', 'secretScanning'].forEach(type => {
+                    const data = vulns[type];
+                    if (data?.aging?.ageBuckets) {
+                        Object.keys(ageBuckets).forEach(bucket => {
+                            ageBuckets[bucket] += data.aging.ageBuckets[bucket] || 0;
+                        });
+                    }
+                });
+            });
+
+            chartInstances.ageDistributionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(ageBuckets).map(b => b + ' days'),
+                    datasets: [{
+                        data: Object.values(ageBuckets),
+                        backgroundColor: ['#2eb85c', '#39afd1', '#f9b115', '#e55353', '#8b0000']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'right' },
+                        title: { display: true, text: 'Vulnerability Age Distribution' }
+                    }
+                }
+            });
+        }
+
+        function updateMTTRMetrics() {
+            const allMTTR = [];
+            const criticalMTTR = [];
+            const highMTTR = [];
+            const mediumMTTR = [];
+
+            filteredRepos.forEach(repo => {
+                const vulns = repo.vulnerabilities;
+                if (!vulns) return;
+                ['codeScanning', 'dependabot', 'secretScanning'].forEach(type => {
+                    const data = vulns[type];
+                    if (data?.mttr) {
+                        allMTTR.push(data.mttr);
+                        // Note: We don't have severity-specific MTTR from current data
+                        // This would require more detailed tracking
+                    }
+                });
+            });
+
+            const avgMTTR = allMTTR.length > 0 ? Math.round(allMTTR.reduce((a, b) => a + b, 0) / allMTTR.length) : 0;
+            document.getElementById('avgMTTR').textContent = avgMTTR > 0 ? avgMTTR : '-';
+            document.getElementById('mttrCritical').textContent = '-';
+            document.getElementById('mttrHigh').textContent = '-';
+            document.getElementById('mttrMedium').textContent = '-';
+        }
+
+        function updateEfficiencyMetrics() {
+            let totalRemediated = 0;
+            filteredRepos.forEach(repo => {
+                const vulns = repo.vulnerabilities;
+                if (!vulns) return;
+                const cs = vulns.codeScanning || {};
+                const dep = vulns.dependabot || {};
+                const sec = vulns.secretScanning || {};
+                totalRemediated += (cs.closedLast30Days || 0) + (dep.closedLast30Days || 0) + (sec.closedLast30Days || 0);
+            });
+
+            const velocity = Math.round((totalRemediated / 30) * 7); // Issues per week
+            document.getElementById('remediationVelocity').textContent = velocity > 0 ? velocity : '-';
+            document.getElementById('responseTime').textContent = '-';
+            document.getElementById('throughput').textContent = velocity > 0 ? velocity : '-';
+        }
+
+        function getChartOptions(title) {
+            const isDark = document.body.classList.contains('dark-mode');
+            return {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    title: { display: true, text: title },
+                    tooltip: {
+                        backgroundColor: isDark ? 'rgba(0, 0, 0, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+                        titleColor: isDark ? '#c9d1d9' : '#fff',
+                        bodyColor: isDark ? '#c9d1d9' : '#fff'
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' },
+                        ticks: { color: isDark ? '#c9d1d9' : '#212529' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' },
+                        ticks: { color: isDark ? '#c9d1d9' : '#212529' }
+                    }
+                }
+            };
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Event listeners
+        document.querySelectorAll('.time-range-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.time-range-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTimeRange = parseInt(btn.dataset.days);
+                renderCharts();
+            });
+        });
+
+        ['filterOrg', 'filterPod', 'filterVertical', 'filterManager'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', (e) => {
+                    currentFilters[id.replace('filter', '').toLowerCase()] = e.target.value;
+                    applyFilters();
+                });
+            }
+        });
+
+        // Initialize Quick Lookup
+        function initializeQuickLookup() {
+            const input = document.getElementById('quickLookupInput');
+            const suggestions = document.getElementById('quickLookupSuggestions');
+            if (!input || !suggestions) return;
+
+            let allPods = [];
+            let allManagers = [];
+            let allVerticals = [];
+
+            allRepos.forEach(repo => {
+                const pods = repo._allPods || (repo.pod ? [repo.pod] : []);
+                allPods.push(...pods.filter(p => p && p !== 'No Pod Selected'));
+                const verts = repo._allVerticals || (repo.vertical ? [repo.vertical] : []);
+                allVerticals.push(...verts.filter(v => v));
+                const mgrs = repo._allManagers || (repo.engineeringManager ? [repo.engineeringManager] : []);
+                allManagers.push(...mgrs.filter(m => m));
+            });
+
+            allPods = [...new Set(allPods)];
+            allManagers = [...new Set(allManagers)];
+            allVerticals = [...new Set(allVerticals)];
+
+            input.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                if (!query) {
+                    suggestions.style.display = 'none';
+                    return;
+                }
+
+                const matches = [];
+                allPods.forEach(pod => {
+                    if (pod.toLowerCase().includes(query)) {
+                        matches.push({ type: 'pod', name: pod, url: `pod.html?name=${encodeURIComponent(pod)}` });
+                    }
+                });
+                allManagers.forEach(mgr => {
+                    if (mgr.toLowerCase().includes(query)) {
+                        matches.push({ type: 'manager', name: mgr, url: `manager.html?name=${encodeURIComponent(mgr)}` });
+                    }
+                });
+                allVerticals.forEach(vert => {
+                    if (vert.toLowerCase().includes(query)) {
+                        matches.push({ type: 'vertical', name: vert, url: `vertical.html?name=${encodeURIComponent(vert)}` });
+                    }
+                });
+
+                if (matches.length > 0) {
+                    suggestions.innerHTML = matches.slice(0, 10).map(m => `
+                        <div class="suggestion-item" onclick="window.location.href='${m.url}'">
+                            <i class="cil-${m.type === 'pod' ? 'layers' : m.type === 'manager' ? 'user' : 'building'}"></i>
+                            ${escapeHtml(m.name)} <small class="text-muted">(${m.type})</small>
+                        </div>
+                    `).join('');
+                    suggestions.style.display = 'block';
+                } else {
+                    suggestions.style.display = 'none';
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+                    suggestions.style.display = 'none';
+                }
+            });
+        }
+
+        // Sidebar toggle
+        function initSidebar() {
+            const toggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            if (toggle && sidebar) {
+                toggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('show');
+                });
+            }
+        }
+
+        // Dark mode toggle
+        function initDarkMode() {
+            const toggle = document.getElementById('darkModeToggle');
+            if (!toggle) return;
+            
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+
+            toggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+                renderCharts(); // Re-render charts with new theme
+            });
+        }
+
+        // Load verticals for nav
+        async function loadVerticalsForNav() {
+            try {
+                const response = await fetch('data/repositories.json');
+                if (!response.ok) return;
+                const data = await response.json();
+                const repos = data.repositories || [];
+                const verticals = [...new Set(repos.flatMap(r => {
+                    const verts = r._allVerticals || (r.vertical ? [r.vertical] : []);
+                    return verts.filter(v => v);
+                }))].sort();
+                
+                const nav = document.getElementById('verticalNavLinks');
+                if (nav) {
+                    nav.innerHTML = verticals.map(v => `
+                        <li class="nav-item">
+                            <a class="nav-link" href="vertical.html?name=${encodeURIComponent(v)}">
+                                <i class="nav-icon cil-building"></i> ${escapeHtml(v)}
+                            </a>
+                        </li>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load verticals for nav:', e);
+            }
+        }
+
+        // Initialize
+        initSidebar();
+        initDarkMode();
+        loadData().then(() => {
+            initializeQuickLookup();
+            loadVerticalsForNav();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "repository-tracker",
+  "version": "2.0.0",
+  "description": "Repository ownership tracker with GitHub API sync",
+  "scripts": {
+    "sync": "node scripts/sync-github-data.js",
+    "sync:full": "node scripts/sync-github-data.js --full",
+    "validate": "node -e \"JSON.parse(require('fs').readFileSync('data/repositories.json', 'utf8'))\" && echo '✅ JSON is valid'"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "github",
+    "repositories",
+    "tracker",
+    "ownership"
+  ],
+  "author": "",
+  "license": "MIT"
+}
+

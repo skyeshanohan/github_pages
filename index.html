@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Repository Ownership Tracker</title>
+    
+    <!-- Preconnect to CDN for faster loading -->
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    
+    <!-- CoreUI CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/@coreui/coreui@4.3.0/dist/css/coreui.min.css">
+    <!-- CoreUI Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@coreui/icons@2.1.0/css/all.min.css">
+    
+    <!-- Preload data file for faster loading -->
+    <link rel="preload" href="data/repositories.json" as="fetch" crossorigin>
+    <!-- Prefetch pod managers -->
+    <link rel="prefetch" href="data/pod-managers.yaml" as="fetch">
+    
+    <style>
+        :root {
+            --cui-body-bg: #f5f7fa;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-sidebar: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-sidebar: #495057;
+            --text-sidebar-active: #321fdb;
+            --border-color: #e9ecef;
+            --hover-bg: #f8f9fa;
+        }
+
+        body.dark-mode {
+            --cui-body-bg: #0d1117;
+            --bg-primary: #161b22;
+            --bg-secondary: #21262d;
+            --bg-sidebar: #161b22;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-sidebar: #c9d1d9;
+            --text-sidebar-active: #58a6ff;
+            --border-color: #30363d;
+            --hover-bg: #21262d;
+            background-color: var(--cui-body-bg);
+            color: var(--text-primary);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--cui-body-bg);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode .card,
+        .dark-mode .navbar {
+            background-color: var(--bg-primary) !important;
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, var(--bg-secondary) 100%);
+            transition: background-color 0.3s, color 0.3s;
+            border-right: 1px solid var(--border-color);
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dark-mode .sidebar {
+            background: linear-gradient(180deg, var(--bg-sidebar) 0%, #1a1e24 100%);
+            box-shadow: 2px 0 8px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-sidebar);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+
+        .sidebar-brand:hover {
+            color: var(--text-sidebar-active);
+        }
+
+        .sidebar-brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #321fdb 0%, #6366f1 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-section-title {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-sidebar) !important;
+            transition: all 0.2s;
+            padding: 0.75rem 1rem !important;
+            margin: 0.125rem 0.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-sidebar-active) !important;
+            transform: translateX(2px);
+        }
+
+        .sidebar .nav-link.active {
+            background: linear-gradient(90deg, rgba(50, 31, 219, 0.1) 0%, transparent 100%);
+            color: var(--text-sidebar-active) !important;
+            border-left: 3px solid var(--text-sidebar-active);
+            font-weight: 500;
+        }
+
+        .dark-mode .sidebar .nav-link.active {
+            background: linear-gradient(90deg, rgba(88, 166, 255, 0.15) 0%, transparent 100%);
+        }
+
+        .sidebar .nav-icon {
+            color: inherit;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-sidebar);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .vertical-link {
+            padding-left: 2rem !important;
+            font-size: 0.9rem;
+        }
+
+        .vertical-link .nav-icon {
+            font-size: 0.9rem;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 0.5rem 1rem;
+        }
+
+        .dark-mode .form-control,
+        .dark-mode .form-select {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .dark-mode .form-control:focus,
+        .dark-mode .form-select:focus {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+        }
+
+        .dark-mode .table {
+            color: var(--text-primary);
+        }
+
+        .dark-mode .table-hover tbody tr:hover {
+            background-color: rgba(88, 166, 255, 0.08);
+        }
+
+        .dark-mode .btn-outline-primary {
+            border-color: #30363d;
+            color: #c9d1d9;
+        }
+
+        .dark-mode .btn-outline-primary:hover {
+            background-color: #21262d;
+            border-color: #58a6ff;
+            color: #58a6ff;
+        }
+
+        .dark-mode .btn-outline-secondary {
+            border-color: #30363d;
+            color: #c9d1d9;
+        }
+
+        .dark-mode .btn-outline-secondary:hover {
+            background-color: #21262d;
+            border-color: #8b949e;
+            color: #c9d1d9;
+        }
+
+        .sidebar-minimized {
+            width: 56px;
+        }
+
+        .sidebar-expanded {
+            width: 256px;
+        }
+
+        .main {
+            margin-left: 256px;
+            transition: margin-left 0.25s;
+        }
+
+        .main.sidebar-collapsed {
+            margin-left: 56px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+            }
+        }
+
+        .stats-card {
+            border-left: 4px solid #321fdb;
+            transition: transform 0.2s, box-shadow 0.2s;
+            background-color: var(--bg-primary);
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stats-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: currentColor;
+        }
+
+        /* Colorblind-friendly: Add patterns/shapes to stats cards */
+        .stats-card[data-card-type="repos"] {
+            border-left-style: solid;
+        }
+
+        .stats-card[data-card-type="orgs"] {
+            border-left-style: double;
+            border-left-width: 6px;
+        }
+
+        .stats-card[data-card-type="pods"] {
+            border-left-style: dashed;
+        }
+
+        .stats-card[data-card-type="verticals"] {
+            border-left-style: dotted;
+        }
+
+        .stats-card[data-card-type="managers"] {
+            border-left-style: solid;
+            border-top: 2px solid currentColor;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .stats-card {
+            background-color: var(--bg-primary);
+            border-color: var(--border-color);
+        }
+
+        .dark-mode .stats-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border-left-color: #58a6ff;
+        }
+
+        .search-container {
+            position: sticky;
+            top: 56px;
+            z-index: 100;
+            background: var(--bg-primary);
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dark-mode .search-container {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .filter-panel {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .dark-mode .filter-panel {
+            background: var(--bg-primary);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        /* Use default table styles (match vertical pages) */
+        #repoTable th, #repoTable td {
+            display: table-cell;
+            vertical-align: middle;
+        }
+        
+        /* Ensure proper column alignment */
+        .table thead th,
+        .table tbody td {
+            padding: 0.75rem;
+        }
+        
+        /* Better styling for empty/missing values */
+        .table td .badge[style*="opacity: 0.7"] {
+            border: 1px solid rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        
+        .dark-mode .table td .badge[style*="opacity: 0.7"] {
+            border-color: rgba(255,255,255,0.1);
+        }
+        
+        .table td .text-muted {
+            color: var(--text-secondary) !important;
+        }
+
+        .badge-custom {
+            padding: 0.35em 0.65em;
+            font-weight: 500;
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .skeleton {
+            animation: skeleton-loading 1s linear infinite alternate;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            border-radius: 4px;
+        }
+
+        .dark-mode .skeleton {
+            background: linear-gradient(90deg, #2a2d35 25%, #3a3d45 50%, #2a2d35 75%);
+            background-size: 200% 100%;
+        }
+
+        @keyframes skeleton-loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .skeleton-row {
+            height: 50px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            opacity: 0.3;
+        }
+
+        .filter-badge {
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .filter-badge:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+
+        .filter-badge.active {
+            box-shadow: 0 0 0 2px currentColor;
+        }
+
+        th[data-sort] {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 25px;
+        }
+
+        th[data-sort]:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .dark-mode th[data-sort]:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        th[data-sort]::after {
+            content: '↕';
+            position: absolute;
+            right: 8px;
+            opacity: 0.3;
+            font-size: 0.8em;
+        }
+
+        th.sort-asc::after {
+            content: '↑';
+            opacity: 1;
+            color: #321fdb;
+            font-weight: bold;
+        }
+
+        th.sort-desc::after {
+            content: '↓';
+            opacity: 1;
+            color: #321fdb;
+            font-weight: bold;
+        }
+
+        th[data-sort]:focus {
+            outline: 2px solid var(--text-sidebar-active);
+            outline-offset: -2px;
+        }
+
+        .repo-link {
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .repo-link:hover,
+        .repo-link:focus {
+            color: #321fdb;
+            text-decoration: underline;
+            border-bottom-color: #321fdb;
+            outline: 2px solid transparent;
+        }
+
+        .dark-mode .repo-link:hover,
+        .dark-mode .repo-link:focus {
+            color: #58a6ff;
+            border-bottom-color: #58a6ff;
+        }
+
+        /* Ensure all links have non-color indicators */
+        a:focus {
+            outline: 2px solid var(--text-sidebar-active);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        .navbar {
+            background-color: var(--bg-primary) !important;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dark-mode .navbar {
+            background-color: var(--bg-primary) !important;
+        }
+
+        .navbar-brand,
+        .navbar-text {
+            color: var(--text-primary) !important;
+        }
+
+        .card {
+            background-color: var(--bg-primary);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .dark-mode .card-header {
+            background-color: var(--bg-secondary);
+            border-bottom-color: var(--border-color);
+        }
+
+        .org-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+        }
+
+        .view-toggle .btn {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .filter-panel {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .dark-mode .filter-panel {
+            background: var(--bg-primary);
+        }
+
+        .pagination-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .metadata-display {
+            text-align: center;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .dark-mode .metadata-display {
+            background: var(--bg-primary);
+        }
+
+        .badge {
+            transition: opacity 0.2s;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .badge {
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        /* Colorblind-friendly: Ensure badges have sufficient contrast and text */
+        .badge.bg-success {
+            border-left: 3px solid #155724;
+        }
+
+        .badge.bg-warning {
+            border-left: 3px solid #856404;
+        }
+
+        .badge.bg-secondary {
+            border-left: 3px solid #383d41;
+        }
+
+        .badge.bg-info {
+            border-left: 3px solid #0c5460;
+        }
+
+        .dark-mode .badge.bg-primary {
+            background-color: #1f6feb !important;
+            border-color: #58a6ff;
+        }
+
+        .dark-mode .badge.bg-success {
+            background-color: #238636 !important;
+            border-color: #3fb950;
+        }
+
+        .dark-mode .badge.bg-secondary {
+            background-color: #6e7681 !important;
+            border-color: #8b949e;
+        }
+
+        .dark-mode .badge.bg-info {
+            background-color: #58a6ff !important;
+            border-color: #79c0ff;
+        }
+
+        .dark-mode .badge.bg-warning {
+            background-color: #d29922 !important;
+            border-color: #e3b341;
+        }
+
+        .grouped-card {
+            margin-bottom: 1rem;
+        }
+
+        .grouped-card .card-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .grouped-card .card-header:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .dark-mode         .grouped-card .card-header:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            margin-top: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .dark-mode .search-suggestions {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.15s;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.active {
+            background-color: var(--hover-bg);
+        }
+
+        .suggestion-item .suggestion-type {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .suggestion-item .suggestion-text {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .suggestion-item .suggestion-match {
+            background-color: rgba(50, 31, 219, 0.1);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .dark-mode .suggestion-item .suggestion-match {
+            background-color: rgba(88, 166, 255, 0.2);
+        }
+
+        .breadcrumb-container {
+            background: var(--bg-secondary);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb {
+            margin-bottom: 0;
+            background: transparent;
+            padding: 0;
+        }
+
+        .breadcrumb-item a {
+            color: var(--text-sidebar-active);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .breadcrumb-item a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--text-primary);
+        }
+
+        /* UI Polish - Smooth transitions */
+        .card {
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .dark-mode .card:hover {
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn {
+            transition: all 0.2s;
+        }
+
+        .badge {
+            transition: transform 0.2s;
+        }
+
+        .badge:hover {
+            transform: scale(1.05);
+        }
+
+        /* Improved focus states - colorblind friendly with visible outlines */
+        .form-control:focus,
+        .form-select:focus,
+        .btn:focus {
+            border-color: var(--text-sidebar-active);
+            box-shadow: 0 0 0 0.2rem rgba(50, 31, 219, 0.25);
+            outline: 2px solid var(--text-sidebar-active);
+            outline-offset: 2px;
+        }
+
+        .dark-mode .form-control:focus,
+        .dark-mode .form-select:focus,
+        .dark-mode .btn:focus {
+            box-shadow: 0 0 0 0.2rem rgba(88, 166, 255, 0.25);
+            outline: 2px solid #58a6ff;
+            outline-offset: 2px;
+        }
+
+        /* Ensure buttons have visible borders on focus */
+        .btn:focus-visible {
+            outline: 2px solid var(--text-sidebar-active);
+            outline-offset: 2px;
+        }
+
+        /* Loading animation polish */
+        .spinner-border {
+            animation: spinner-border 0.75s linear infinite;
+        }
+
+        @keyframes spinner-border {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Table row hover polish */
+        .table-hover tbody tr {
+            transition: background-color 0.15s;
+        }
+
+        /* Filter panel polish */
+        .filter-panel {
+            transition: box-shadow 0.2s;
+        }
+
+        .filter-panel:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* Filter Chips */
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .filter-chip:hover {
+            background-color: var(--hover-bg);
+            transform: translateY(-1px);
+        }
+
+        .filter-chip .chip-label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .filter-chip .chip-value {
+            color: var(--text-sidebar-active);
+            font-weight: 600;
+        }
+
+        .filter-chip .chip-remove {
+            cursor: pointer;
+            padding: 0.125rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem;
+            height: 1.25rem;
+            transition: background-color 0.2s;
+        }
+
+        .filter-chip .chip-remove:hover {
+            background-color: var(--border-color);
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            animation: slideInRight 0.3s ease-out;
+            min-width: 300px;
+        }
+
+        .dark-mode .toast {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .toast-success {
+            border-left: 4px solid #2eb85c;
+        }
+
+        .toast-error {
+            border-left: 4px solid #e55353;
+        }
+
+        .toast-info {
+            border-left: 4px solid #321fdb;
+        }
+
+        .toast-warning {
+            border-left: 4px solid #f9b115;
+        }
+
+        .toast-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .toast-success .toast-icon {
+            color: #2eb85c;
+        }
+
+        .toast-error .toast-icon {
+            color: #e55353;
+        }
+
+        .toast-info .toast-icon {
+            color: #321fdb;
+        }
+
+        .toast-warning .toast-icon {
+            color: #f9b115;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .toast-message {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .toast-close {
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .toast.fade-out {
+            animation: slideOutRight 0.3s ease-in forwards;
+        }
+
+        /* Quick Lookup Bar */
+        .quick-lookup-container {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .quick-lookup-wrapper {
+            max-width: 600px;
+            position: relative;
+        }
+
+        .quick-lookup-input {
+            width: 100%;
+            padding: 0.5rem 2.5rem 0.5rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .quick-lookup-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .quick-lookup-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 0.375rem 0.375rem;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .dark-mode .quick-lookup-suggestions {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .quick-lookup-suggestions.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.selected {
+            background: var(--hover-bg);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-icon {
+            color: var(--text-sidebar-active);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar sidebar-expanded" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-brand">
+                <div class="sidebar-brand-icon">
+                    <i class="cil-code"></i>
+                </div>
+                <span>Repo Tracker</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.html">
+                        <i class="nav-icon cil-speedometer"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="index.html">
+                        <i class="nav-icon cil-list"></i> Repository Table
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="trends.html">
+                        <i class="nav-icon cil-chart-line"></i> Trends
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="stats.html">
+                        <i class="nav-icon cil-chart"></i> Statistics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="health.html">
+                        <i class="nav-icon cil-heart"></i> Health
+                    </a>
+                </li>
+                <div class="nav-divider"></div>
+                <li class="sidebar-section">
+                    <div class="sidebar-section-title">Verticals</div>
+                    <ul class="nav" id="verticalNavLinks"></ul>
+                </li>
+                <div class="nav-divider"></div>
+                <li class="nav-item">
+                    <a class="nav-link" href="about.html">
+                        <i class="nav-icon cil-info"></i> About
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <div>© 2024</div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main" id="main">
+        <!-- Header -->
+        <header class="navbar navbar-expand navbar-light bg-white border-bottom">
+            <div class="container-fluid">
+                <button class="btn btn-link d-md-none" id="sidebarToggle">
+                    <i class="cil-menu"></i>
+                </button>
+                <h4 class="navbar-brand mb-0">Repository Ownership Tracker</h4>
+                <div class="navbar-nav ms-auto">
+                    <div class="toolbar">
+                        <button class="btn btn-sm btn-outline-secondary" id="darkModeToggle" title="Toggle dark mode">
+                            <i class="cil-moon"></i>
+                        </button>
+                        <div class="view-toggle">
+                            <button class="btn btn-sm btn-outline-primary" id="viewModeToggle" title="Toggle view mode">
+                                <i class="cil-apps"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Quick Lookup Bar -->
+        <div class="quick-lookup-container" id="quickLookupContainer" style="display: none;">
+            <div class="container-fluid">
+                <div class="quick-lookup-wrapper">
+                    <i class="cil-magnifying-glass quick-lookup-icon"></i>
+                    <input type="text" class="quick-lookup-input" id="quickLookupInput" placeholder="Search pods, managers, or verticals... (e.g., 'Vertical1-Pod1' or 'Sarah Johnson')" autocomplete="off">
+                    <div class="quick-lookup-suggestions" id="quickLookupSuggestions"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div id="toastContainer" class="toast-container"></div>
+
+        <!-- Content -->
+        <div class="body flex-grow-1 p-3">
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb" id="breadcrumbNav" class="breadcrumb-container">
+                <ol class="breadcrumb mb-0">
+                </ol>
+            </nav>
+
+            <!-- Metadata Display -->
+            <div class="metadata-display" id="dataMetadata"></div>
+
+            <!-- Stats Cards -->
+            <div class="row mb-4 g-3 justify-content-center">
+                <div class="col-sm-6 col-lg-2 d-flex">
+                    <div class="card mb-4 stats-card w-100" data-card-type="repos" aria-label="Total Repositories">
+                        <div class="card-body">
+                            <div class="fs-4 fw-semibold" id="totalRepos">-</div>
+                            <div class="text-medium-emphasis text-uppercase fw-semibold small"><i class="cil-list" aria-hidden="true"></i> Total Repositories</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-2 d-flex">
+                    <div class="card mb-4 stats-card w-100" data-card-type="orgs" style="border-left-color: #6366f1;" aria-label="Organizations">
+                        <div class="card-body">
+                            <div class="fs-4 fw-semibold" id="totalOrgs">-</div>
+                            <div class="text-medium-emphasis text-uppercase fw-semibold small"><i class="cil-building" aria-hidden="true"></i> Organizations</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-2 d-flex">
+                    <div class="card mb-4 stats-card w-100" data-card-type="pods" style="border-left-color: #e55353;" aria-label="Pods">
+                        <div class="card-body">
+                            <div class="fs-4 fw-semibold" id="totalPods">-</div>
+                            <div class="text-medium-emphasis text-uppercase fw-semibold small"><i class="cil-layers" aria-hidden="true"></i> Pods</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-2 d-flex">
+                    <div class="card mb-4 stats-card w-100" data-card-type="verticals" style="border-left-color: #2eb85c;" aria-label="Verticals">
+                        <div class="card-body">
+                            <div class="fs-4 fw-semibold" id="totalVerticals">-</div>
+                            <div class="text-medium-emphasis text-uppercase fw-semibold small"><i class="cil-folder" aria-hidden="true"></i> Verticals</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-2 d-flex">
+                    <div class="card mb-4 stats-card w-100" data-card-type="managers" style="border-left-color: #f9b115;" aria-label="Engineering Managers">
+                        <div class="card-body">
+                            <div class="fs-4 fw-semibold" id="totalManagers">-</div>
+                            <div class="text-medium-emphasis text-uppercase fw-semibold small"><i class="cil-people" aria-hidden="true"></i> Engineering Managers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Filters -->
+            <div class="filter-panel">
+                <!-- Active Filter Chips -->
+                <div id="filterChips" class="mb-3 d-flex flex-wrap gap-2" style="min-height: 2rem;"></div>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label"><strong>Search</strong> (Press Ctrl/Cmd+F to focus)</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search repositories, organizations, pods, verticals, managers, descriptions..." autocomplete="off">
+                            <div id="searchSuggestions" class="search-suggestions d-none"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Organization</label>
+                        <select class="form-select" id="filterOrg">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Pod</label>
+                        <select class="form-select" id="filterPod">
+                            <option value="">All</option>
+                        </select>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="filterNoPod">
+                            <label class="form-check-label" for="filterNoPod">
+                                Show repositories without a Pod
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Vertical</label>
+                        <select class="form-select" id="filterVertical">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Engineering Manager</label>
+                        <select class="form-select" id="filterManager">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-12 d-flex justify-content-between align-items-end">
+                        <div class="flex-grow-1">
+                            <label class="form-label">Quick Filters</label>
+                            <div id="quickFilters" class="d-flex flex-wrap gap-2"></div>
+                        </div>
+                        <div class="ms-3">
+                            <button class="btn btn-outline-primary" id="advancedFiltersBtn" onclick="tracker.openAdvancedFilters()">
+                                <i class="cil-filter"></i> Advanced Filters
+                                <span class="badge bg-primary ms-1" id="advancedFiltersCount" style="display: none;">0</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Filters Modal -->
+            <div class="modal fade" id="advancedFiltersModal" tabindex="-1" aria-labelledby="advancedFiltersModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="advancedFiltersModalLabel">
+                                <i class="cil-filter"></i> Advanced Filters
+                            </h5>
+                            <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Time-Based Activity Filters -->
+                            <div class="mb-4">
+                                <h6 class="fw-semibold mb-3"><i class="cil-clock"></i> Time-Based Activity</h6>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterRecent7Days" onchange="tracker.toggleTimeFilter('recent7Days')">
+                                            <label class="form-check-label" for="filterRecent7Days">
+                                                Recently Active (7 days)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterRecent14Days" onchange="tracker.toggleTimeFilter('recent14Days')">
+                                            <label class="form-check-label" for="filterRecent14Days">
+                                                Recently Active (14 days)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterActiveMonth" onchange="tracker.toggleTimeFilter('activeMonth')">
+                                            <label class="form-check-label" for="filterActiveMonth">
+                                                Active This Month (30 days)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterActive60Days" onchange="tracker.toggleTimeFilter('active60Days')">
+                                            <label class="form-check-label" for="filterActive60Days">
+                                                Active (60 days)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterActiveQuarter" onchange="tracker.toggleTimeFilter('activeQuarter')">
+                                            <label class="form-check-label" for="filterActiveQuarter">
+                                                Active This Quarter (90 days)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterActive180Days" onchange="tracker.toggleTimeFilter('active180Days')">
+                                            <label class="form-check-label" for="filterActive180Days">
+                                                Active (180 days)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterActive365Days" onchange="tracker.toggleTimeFilter('active365Days')">
+                                            <label class="form-check-label" for="filterActive365Days">
+                                                Active (365 days)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterStale90" onchange="tracker.toggleTimeFilter('stale90')">
+                                            <label class="form-check-label" for="filterStale90">
+                                                Stale (90+ days inactive)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Data Completeness Filters -->
+                            <div class="mb-4">
+                                <h6 class="fw-semibold mb-3"><i class="cil-warning"></i> Data Completeness</h6>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterMissingManager" onchange="tracker.toggleHealthFilter('missingManager')">
+                                            <label class="form-check-label" for="filterMissingManager">
+                                                Missing Engineering Manager
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterNoActivityDate" onchange="tracker.toggleHealthFilter('noActivityDate')">
+                                            <label class="form-check-label" for="filterNoActivityDate">
+                                                No Activity Date Recorded
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterMissingLanguage" onchange="tracker.toggleHealthFilter('missingLanguage')">
+                                            <label class="form-check-label" for="filterMissingLanguage">
+                                                Missing Language
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterMultiplePods" onchange="tracker.toggleHealthFilter('multiplePods')">
+                                            <label class="form-check-label" for="filterMultiplePods">
+                                                Has Multiple Pods
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Top Attributes Filters -->
+                            <div class="mb-4">
+                                <h6 class="fw-semibold mb-3"><i class="cil-list"></i> Top Attributes</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label small">Top Languages</label>
+                                        <div id="topLanguagesFilters" class="d-flex flex-column gap-2"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small">Top Pods</label>
+                                        <div id="topPodsFilters" class="d-flex flex-column gap-2"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small">Top Verticals</label>
+                                        <div id="topVerticalsFilters" class="d-flex flex-column gap-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Security Filters -->
+                            <div class="mb-4">
+                                <h6 class="fw-semibold mb-3"><i class="cil-shield-alt"></i> Security Issues</h6>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterCriticalSecurity" onchange="tracker.toggleSecurityFilter('critical')">
+                                            <label class="form-check-label" for="filterCriticalSecurity">
+                                                <span class="badge bg-danger">Critical Vulnerabilities</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterHighSecurity" onchange="tracker.toggleSecurityFilter('high')">
+                                            <label class="form-check-label" for="filterHighSecurity">
+                                                <span class="badge bg-warning text-dark">High Vulnerabilities</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterMediumSecurity" onchange="tracker.toggleSecurityFilter('medium')">
+                                            <label class="form-check-label" for="filterMediumSecurity">
+                                                <span class="badge bg-info">Medium Vulnerabilities</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterCodeQL" onchange="tracker.toggleSecurityFilter('codeql')">
+                                            <label class="form-check-label" for="filterCodeQL">
+                                                <i class="cil-code"></i> Has SAST Alerts
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterDependabot" onchange="tracker.toggleSecurityFilter('dependabot')">
+                                            <label class="form-check-label" for="filterDependabot">
+                                                <i class="cil-bug"></i> Has Dependabot Alerts
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterSecrets" onchange="tracker.toggleSecurityFilter('secrets')">
+                                            <label class="form-check-label" for="filterSecrets">
+                                                <i class="cil-lock-locked"></i> Has Exposed Secrets
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="filterSecure" onchange="tracker.toggleSecurityFilter('secure')">
+                                            <label class="form-check-label" for="filterSecure">
+                                                <span class="badge bg-success"><i class="cil-check-circle"></i> Secure Repos (No Issues)</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Presets -->
+                            <div class="mb-3">
+                                <h6 class="fw-semibold mb-3"><i class="cil-speedometer"></i> Quick Presets</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-sm btn-outline-success" onclick="tracker.applyPreset('mostActive')">
+                                        Most Active Repos
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="tracker.applyPreset('needsAttention')">
+                                        Needs Attention
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info" onclick="tracker.applyPreset('completeData')">
+                                        Complete Data
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="tracker.applyPreset('criticalSecurity')">
+                                        Critical Security Issues
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="tracker.applyPreset('highSecurity')">
+                                        High Priority Vulnerabilities
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="tracker.applyPreset('exposedSecrets')" style="border-color: #9c27b0; color: #9c27b0;">
+                                        Exposed Secrets
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="tracker.resetAdvancedFilters()">Reset</button>
+                            <button type="button" class="btn btn-primary" onclick="tracker.applyAdvancedFilters()">Apply Filters</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="toolbar">
+                        <button class="btn btn-primary" id="exportBtn" onclick="tracker.export('csv')">
+                            <i class="cil-save"></i> Export CSV
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="tracker.export('json')">
+                            <i class="cil-save"></i> Export JSON
+                        </button>
+                        <div class="ms-auto">
+                            <label class="form-label me-2">Items per page:</label>
+                            <select class="form-select form-select-sm d-inline-block" style="width: auto;" id="itemsPerPage">
+                                <option value="25">25</option>
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                                <option value="0">All</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>Repository Ownership</strong>
+                    <span id="filteredCount" class="badge bg-secondary"></span>
+                </div>
+                <div class="card-body">
+                    <!-- Loading Skeleton - Hidden immediately when data loads -->
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="text-center w-100">
+                            <div class="spinner-border text-primary mb-3" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-muted">Loading repository data...</p>
+                            <div class="mt-3">
+                                <div class="skeleton skeleton-row"></div>
+                                <div class="skeleton skeleton-row"></div>
+                                <div class="skeleton skeleton-row"></div>
+                                <div class="skeleton skeleton-row"></div>
+                                <div class="skeleton skeleton-row"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state d-none" id="emptyState">
+                        <i class="cil-search" style="font-size: 3rem;"></i>
+                        <p class="mt-3">No repositories found matching your search criteria.</p>
+                        <p class="text-muted">Try adjusting your filters or search terms.</p>
+                    </div>
+
+                    <!-- Table View -->
+                    <div class="table-container d-none" id="tableContainer">
+                        <table class="table table-hover" id="repoTable">
+                            <thead>
+                                <tr>
+                                    <th data-sort="organization">Organization</th>
+                                    <th data-sort="repository">Repository</th>
+                                    <th data-sort="pod">Pod</th>
+                                    <th data-sort="vertical">Vertical</th>
+                                    <th data-sort="engineeringManager">Engineering Manager</th>
+                                    <th data-sort="lastActivity">Last Activity</th>
+                                    <th data-sort="language">Language</th>
+                                    <th data-sort="vulnerabilities">Security</th>
+                                    <th data-sort="age">Age (Days)</th>
+                                    <th data-sort="riskScore">Risk Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="repoTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Grouped View -->
+                    <div class="d-none" id="groupedContainer"></div>
+
+                    <!-- Pagination -->
+                    <div id="pagination" class="pagination-info"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS for modals (CoreUI includes Bootstrap) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- CoreUI JS - Load asynchronously -->
+    <script src="https://unpkg.com/@coreui/coreui@4.3.0/dist/js/coreui.bundle.min.js" defer></script>
+    
+    <!-- Repository Tracker - Load early but execute after DOM -->
+    <script src="js/repository-tracker.js" defer></script>
+    
+    <script>
+        // Load verticals for sidebar navigation
+        async function loadVerticalsForNav() {
+            try {
+                const response = await fetch('data/repositories.json');
+                const data = await response.json();
+                // Normalize verticals just like the main app
+                const normalize = (repos) => (repos || []).map(repo => {
+                    const n = { ...repo };
+                    let pods = [];
+                    if (Array.isArray(n.pod)) pods = n.pod.filter(p => p && p.trim() && p !== 'No Pod Selected');
+                    else if (typeof n.pod === 'string') pods = n.pod.split(',').map(p => p.trim()).filter(p => p && p !== 'No Pod Selected');
+                    if (!n.vertical || !n.vertical.trim()) {
+                        const vs = new Set();
+                        pods.forEach(p => { if (p.includes('-')) vs.add(p.split('-').slice(0, -1).join('-')); });
+                        if (vs.size > 0) n.vertical = Array.from(vs)[0];
+                        else if (pods[0] && pods[0].includes('-')) n.vertical = pods[0].split('-').slice(0, -1).join('-');
+                        else n.vertical = 'No Vertical Identified';
+                    }
+                    return n;
+                });
+                const normalized = normalize(data.repositories || []);
+                const verticalSet = new Set();
+                normalized.forEach(r => {
+                    if (r.vertical) verticalSet.add(r.vertical);
+                    if (Array.isArray(r._allVerticals)) r._allVerticals.forEach(v => v && verticalSet.add(v));
+                });
+                const verticals = [...verticalSet]
+                    .filter(v => v && v !== 'No Vertical Identified')
+                    .sort();
+                
+                const navLinksContainer = document.getElementById('verticalNavLinks');
+                if (navLinksContainer) {
+                    navLinksContainer.innerHTML = verticals.map(vertical => {
+                        const encodedVertical = encodeURIComponent(vertical);
+                        return `
+                            <li class="nav-item">
+                                <a class="nav-link vertical-link" href="vertical.html?name=${encodedVertical}">
+                                    <i class="nav-icon cil-folder"></i> ${escapeHtml(vertical)}
+                                </a>
+                            </li>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Error loading verticals:', error);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Quick Lookup functionality
+        let allPodsForLookup = [];
+        let allManagersForLookup = [];
+        let allVerticalsForLookup = [];
+        let podManagersForLookup = {};
+
+        async function initializeQuickLookup() {
+            // Load pod-managers.yaml
+            try {
+                const res = await fetch('data/pod-managers.yaml');
+                if (res.ok) {
+                    const yaml = await res.text();
+                    const lines = yaml.split(/\r?\n/);
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed || trimmed.startsWith('#')) continue;
+                        const idx = trimmed.indexOf(':');
+                        if (idx === -1) continue;
+                        const key = trimmed.slice(0, idx).trim();
+                        let value = trimmed.slice(idx + 1).trim();
+                        if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                            value = value.slice(1, -1);
+                        }
+                        if (key) podManagersForLookup[key] = value;
+                    }
+                }
+            } catch {}
+
+            // Get all repos from tracker if available
+            if (window.tracker && window.tracker.repositories) {
+                const repos = window.tracker.repositories;
+                const pods = new Set();
+                const managers = new Set();
+                const verticals = new Set();
+
+                repos.forEach(repo => {
+                    if (repo._allPods) repo._allPods.forEach(p => pods.add(p));
+                    if (repo._allManagers) repo._allManagers.forEach(m => managers.add(m));
+                    if (repo._allVerticals) repo._allVerticals.forEach(v => verticals.add(v));
+                });
+
+                Object.keys(podManagersForLookup).forEach(pod => pods.add(pod));
+                Object.values(podManagersForLookup).forEach(manager => managers.add(manager));
+
+                allPodsForLookup = Array.from(pods).sort();
+                allManagersForLookup = Array.from(managers).sort();
+                allVerticalsForLookup = Array.from(verticals).sort();
+
+                // Show Quick Lookup after data is loaded
+                const container = document.getElementById('quickLookupContainer');
+                if (container) container.style.display = 'block';
+            }
+        }
+
+        function showQuickLookupSuggestions(query) {
+            const suggestions = document.getElementById('quickLookupSuggestions');
+            if (!suggestions) return;
+
+            if (!query || query.length < 2) {
+                suggestions.classList.remove('show');
+                return;
+            }
+
+            const q = query.toLowerCase();
+            const matches = [];
+
+            allPodsForLookup.forEach(pod => {
+                if (pod.toLowerCase().includes(q)) {
+                    matches.push({ type: 'pod', name: pod, display: pod, icon: 'cil-layers' });
+                }
+            });
+
+            allManagersForLookup.forEach(manager => {
+                if (manager.toLowerCase().includes(q)) {
+                    matches.push({ type: 'manager', name: manager, display: manager, icon: 'cil-user' });
+                }
+            });
+
+            allVerticalsForLookup.forEach(vertical => {
+                if (vertical.toLowerCase().includes(q)) {
+                    matches.push({ type: 'vertical', name: vertical, display: vertical, icon: 'cil-folder' });
+                }
+            });
+
+            if (matches.length === 0) {
+                suggestions.classList.remove('show');
+                return;
+            }
+
+            suggestions.innerHTML = matches.slice(0, 10).map(match => `
+                <div class="suggestion-item" data-type="${match.type}" data-name="${escapeHtml(match.name)}">
+                    <i class="cil ${match.icon} suggestion-icon"></i>
+                    <span>${escapeHtml(match.display)}</span>
+                </div>
+            `).join('');
+
+            suggestions.classList.add('show');
+
+            suggestions.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const type = item.dataset.type;
+                    const name = item.dataset.name;
+                    if (type === 'pod') {
+                        window.location.href = `pod.html?name=${encodeURIComponent(name)}`;
+                    } else if (type === 'manager') {
+                        window.location.href = `manager.html?name=${encodeURIComponent(name)}`;
+                    } else if (type === 'vertical') {
+                        window.location.href = `vertical.html?name=${encodeURIComponent(name)}`;
+                    }
+                });
+            });
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Sidebar functionality
+        function initSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const main = document.getElementById('main');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            // Disable auto-collapse on link click to avoid "wonky" behavior
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // Items per page selector
+            const itemsPerPageSelect = document.getElementById('itemsPerPage');
+            if (itemsPerPageSelect) {
+                itemsPerPageSelect.addEventListener('change', (e) => {
+                    if (tracker) {
+                        tracker.itemsPerPage = parseInt(e.target.value) || 999999;
+                        tracker.currentPage = 1;
+                        tracker.render();
+                    }
+                });
+            }
+
+            // Update filtered count
+            setInterval(() => {
+                if (tracker && document.getElementById('filteredCount')) {
+                    document.getElementById('filteredCount').textContent = 
+                        `${tracker.filteredRepos.length} ${tracker.filteredRepos.length === 1 ? 'repository' : 'repositories'}`;
+                }
+            }, 100);
+
+            // Load verticals for navigation
+            loadVerticalsForNav();
+        }
+
+        // Initialize sidebar when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSidebar);
+        } else {
+            initSidebar();
+        }
+    </script>
+</body>
+</html>

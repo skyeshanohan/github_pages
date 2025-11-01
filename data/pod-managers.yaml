@@ -1,0 +1,14 @@
+# Pod to Engineering Manager mapping
+# Edit this file to manage ownership centrally.
+# Format: PodName: Manager Name
+
+Vertical1-Pod1: Sarah Johnson
+Vertical1-Pod2: Alex Rivera
+Vertical2-Pod1: Priya Singh
+Vertical2-Pod2: Daniel Wu
+Vertical3-Pod1: Emily Rodriguez
+Vertical3-Pod2: David Kim
+
+# Note:
+# - "No Pod Selected" is intentionally not mapped.
+# - Update manager names as needed; the app will reflect changes on reload.
