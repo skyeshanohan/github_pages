@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "lastUpdated": "2025-12-06T03:13:29.194Z",
+    "lastUpdated": "2025-12-07T03:39:30.596Z",
     "version": "2.0",
     "source": "GitHub API sync",
-    "syncedAt": "2025-12-06T03:13:29.194Z",
+    "syncedAt": "2025-12-07T03:39:30.596Z",
     "organizations": [
       "Skyeshanohan"
     ],
@@ -20,6 +20,143 @@
     ]
   },
   "repositories": [
+    {
+      "organization": "skyeshanohan",
+      "repository": "Repository-5",
+      "pod": [
+        "Vertical1-Pod1",
+        "Vertical3-Pod1"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "",
+      "status": "active",
+      "lastActivity": "2025-05-15",
+      "githubUrl": "https://github.com/skyeshanohan/Repository-5",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-05-15T16:01:31Z",
+        "pushedAt": "2025-05-15T16:01:31Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "openedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "closedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "aging": {
+            "oldestAge": 0,
+            "averageAge": 0,
+            "ageBuckets": {
+              "0-7": 0,
+              "8-30": 0,
+              "31-90": 0,
+              "91-180": 0,
+              "180+": 0
+            }
+          },
+          "mttr": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "openedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "closedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "aging": {
+            "oldestAge": 0,
+            "averageAge": 0,
+            "ageBuckets": {
+              "0-7": 0,
+              "8-30": 0,
+              "31-90": 0,
+              "91-180": 0,
+              "180+": 0
+            }
+          },
+          "mttr": 0,
+          "lastUpdated": null,
+          "enabled": false
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "openedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "closedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "aging": {
+            "oldestAge": 0,
+            "averageAge": 0,
+            "ageBuckets": {
+              "0-7": 0,
+              "8-30": 0,
+              "31-90": 0,
+              "91-180": 0,
+              "180+": 0
+            }
+          },
+          "mttr": 0,
+          "lastUpdated": null,
+          "enabled": true
+        }
+      },
+      "engineeringManager": ""
+    },
     {
       "organization": "skyeshanohan",
       "repository": "Repository3",
@@ -299,143 +436,6 @@
     },
     {
       "organization": "skyeshanohan",
-      "repository": "Repository2",
-      "pod": [
-        "Vertical1-Pod1",
-        "Vertical3-Pod1"
-      ],
-      "environmentType": "Production",
-      "vertical": "",
-      "description": "",
-      "language": "",
-      "status": "active",
-      "lastActivity": "2025-05-15",
-      "githubUrl": "https://github.com/skyeshanohan/Repository2",
-      "_metadata": {
-        "stars": 0,
-        "forks": 0,
-        "openIssues": 0,
-        "createdAt": "2025-05-15T16:00:07Z",
-        "pushedAt": "2025-05-15T16:00:07Z",
-        "defaultBranch": "main",
-        "topics": []
-      },
-      "codeowners": false,
-      "vulnerabilities": {
-        "codeScanning": {
-          "total": 0,
-          "critical": 0,
-          "high": 0,
-          "medium": 0,
-          "low": 0,
-          "openedLast30Days": 0,
-          "closedLast30Days": 0,
-          "openedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "closedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "aging": {
-            "oldestAge": 0,
-            "averageAge": 0,
-            "ageBuckets": {
-              "0-7": 0,
-              "8-30": 0,
-              "31-90": 0,
-              "91-180": 0,
-              "180+": 0
-            }
-          },
-          "mttr": 0,
-          "lastUpdated": null,
-          "enabled": true
-        },
-        "dependabot": {
-          "total": 0,
-          "critical": 0,
-          "high": 0,
-          "medium": 0,
-          "low": 0,
-          "ecosystems": [],
-          "openedLast30Days": 0,
-          "closedLast30Days": 0,
-          "openedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "closedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "aging": {
-            "oldestAge": 0,
-            "averageAge": 0,
-            "ageBuckets": {
-              "0-7": 0,
-              "8-30": 0,
-              "31-90": 0,
-              "91-180": 0,
-              "180+": 0
-            }
-          },
-          "mttr": 0,
-          "lastUpdated": null,
-          "enabled": false
-        },
-        "secretScanning": {
-          "total": 0,
-          "secretTypes": {},
-          "openedLast30Days": 0,
-          "closedLast30Days": 0,
-          "openedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "closedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "aging": {
-            "oldestAge": 0,
-            "averageAge": 0,
-            "ageBuckets": {
-              "0-7": 0,
-              "8-30": 0,
-              "31-90": 0,
-              "91-180": 0,
-              "180+": 0
-            }
-          },
-          "mttr": 0,
-          "lastUpdated": null,
-          "enabled": true
-        }
-      },
-      "engineeringManager": ""
-    },
-    {
-      "organization": "skyeshanohan",
       "repository": "Repository-4",
       "pod": [
         "Vertical3-Pod2"
@@ -572,7 +572,7 @@
     },
     {
       "organization": "skyeshanohan",
-      "repository": "Repository-5",
+      "repository": "Repository2",
       "pod": [
         "Vertical1-Pod1",
         "Vertical3-Pod1"
@@ -583,13 +583,13 @@
       "language": "",
       "status": "active",
       "lastActivity": "2025-05-15",
-      "githubUrl": "https://github.com/skyeshanohan/Repository-5",
+      "githubUrl": "https://github.com/skyeshanohan/Repository2",
       "_metadata": {
         "stars": 0,
         "forks": 0,
         "openIssues": 0,
-        "createdAt": "2025-05-15T16:01:31Z",
-        "pushedAt": "2025-05-15T16:01:31Z",
+        "createdAt": "2025-05-15T16:00:07Z",
+        "pushedAt": "2025-05-15T16:00:07Z",
         "defaultBranch": "main",
         "topics": []
       },
@@ -846,143 +846,6 @@
     },
     {
       "organization": "skyeshanohan",
-      "repository": "GHAS",
-      "pod": [
-        "Vertical1-Pod1",
-        "Vertical3-Pod1"
-      ],
-      "environmentType": "Production",
-      "vertical": "",
-      "description": "",
-      "language": "Shell",
-      "status": "active",
-      "lastActivity": "2025-06-26",
-      "githubUrl": "https://github.com/skyeshanohan/GHAS",
-      "_metadata": {
-        "stars": 0,
-        "forks": 0,
-        "openIssues": 0,
-        "createdAt": "2025-06-16T14:21:34Z",
-        "pushedAt": "2025-06-26T15:33:14Z",
-        "defaultBranch": "main",
-        "topics": []
-      },
-      "codeowners": false,
-      "vulnerabilities": {
-        "codeScanning": {
-          "total": 0,
-          "critical": 0,
-          "high": 0,
-          "medium": 0,
-          "low": 0,
-          "openedLast30Days": 0,
-          "closedLast30Days": 0,
-          "openedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "closedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "aging": {
-            "oldestAge": 0,
-            "averageAge": 0,
-            "ageBuckets": {
-              "0-7": 0,
-              "8-30": 0,
-              "31-90": 0,
-              "91-180": 0,
-              "180+": 0
-            }
-          },
-          "mttr": 0,
-          "lastUpdated": null,
-          "enabled": true
-        },
-        "dependabot": {
-          "total": 0,
-          "critical": 0,
-          "high": 0,
-          "medium": 0,
-          "low": 0,
-          "ecosystems": [],
-          "openedLast30Days": 0,
-          "closedLast30Days": 0,
-          "openedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "closedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "aging": {
-            "oldestAge": 0,
-            "averageAge": 0,
-            "ageBuckets": {
-              "0-7": 0,
-              "8-30": 0,
-              "31-90": 0,
-              "91-180": 0,
-              "180+": 0
-            }
-          },
-          "mttr": 0,
-          "lastUpdated": null,
-          "enabled": false
-        },
-        "secretScanning": {
-          "total": 0,
-          "secretTypes": {},
-          "openedLast30Days": 0,
-          "closedLast30Days": 0,
-          "openedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "closedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "aging": {
-            "oldestAge": 0,
-            "averageAge": 0,
-            "ageBuckets": {
-              "0-7": 0,
-              "8-30": 0,
-              "31-90": 0,
-              "91-180": 0,
-              "180+": 0
-            }
-          },
-          "mttr": 0,
-          "lastUpdated": null,
-          "enabled": true
-        }
-      },
-      "engineeringManager": ""
-    },
-    {
-      "organization": "skyeshanohan",
       "repository": "docs",
       "pod": [
         "Vertical1-Pod1",
@@ -1120,6 +983,145 @@
     },
     {
       "organization": "skyeshanohan",
+      "repository": "public-test-2",
+      "pod": [
+        "Vertical3-Pod2"
+      ],
+      "environmentType": "Production",
+      "vertical": "",
+      "description": "",
+      "language": "Python",
+      "status": "active",
+      "lastActivity": "2025-06-27",
+      "githubUrl": "https://github.com/skyeshanohan/public-test-2",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-06-11T21:38:01Z",
+        "pushedAt": "2025-06-27T20:12:45Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": true,
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 44,
+          "critical": 5,
+          "high": 29,
+          "medium": 10,
+          "low": 0,
+          "openedLast30Days": 1,
+          "closedLast30Days": 0,
+          "openedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 1,
+            "low": 0,
+            "info": 0
+          },
+          "closedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "aging": {
+            "oldestAge": 162,
+            "averageAge": 159,
+            "ageBuckets": {
+              "0-7": 0,
+              "8-30": 1,
+              "31-90": 0,
+              "91-180": 43,
+              "180+": 0
+            }
+          },
+          "mttr": 0,
+          "lastUpdated": "2025-11-22T12:51:02Z",
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "openedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "closedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "aging": {
+            "oldestAge": 0,
+            "averageAge": 0,
+            "ageBuckets": {
+              "0-7": 0,
+              "8-30": 0,
+              "31-90": 0,
+              "91-180": 0,
+              "180+": 0
+            }
+          },
+          "mttr": 0,
+          "lastUpdated": null,
+          "enabled": false
+        },
+        "secretScanning": {
+          "total": 2,
+          "secretTypes": {
+            "aws_secret_access_key": 1,
+            "aws_access_key_id": 1
+          },
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "openedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "closedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "aging": {
+            "oldestAge": 162,
+            "averageAge": 162,
+            "ageBuckets": {
+              "0-7": 0,
+              "8-30": 0,
+              "31-90": 0,
+              "91-180": 2,
+              "180+": 0
+            }
+          },
+          "mttr": 0,
+          "lastUpdated": "2025-08-12T16:22:26Z",
+          "enabled": true
+        }
+      },
+      "engineeringManager": ""
+    },
+    {
+      "organization": "skyeshanohan",
       "repository": "public-test",
       "pod": [
         "Vertical2-Pod1",
@@ -1166,8 +1168,8 @@
             "info": 0
           },
           "aging": {
-            "oldestAge": 204,
-            "averageAge": 199,
+            "oldestAge": 205,
+            "averageAge": 200,
             "ageBuckets": {
               "0-7": 0,
               "8-30": 1,
@@ -1257,40 +1259,41 @@
     },
     {
       "organization": "skyeshanohan",
-      "repository": "public-test-2",
+      "repository": "GHAS",
       "pod": [
-        "Vertical3-Pod2"
+        "Vertical1-Pod1",
+        "Vertical3-Pod1"
       ],
       "environmentType": "Production",
       "vertical": "",
       "description": "",
-      "language": "Python",
+      "language": "Shell",
       "status": "active",
-      "lastActivity": "2025-06-27",
-      "githubUrl": "https://github.com/skyeshanohan/public-test-2",
+      "lastActivity": "2025-06-26",
+      "githubUrl": "https://github.com/skyeshanohan/GHAS",
       "_metadata": {
         "stars": 0,
         "forks": 0,
         "openIssues": 0,
-        "createdAt": "2025-06-11T21:38:01Z",
-        "pushedAt": "2025-06-27T20:12:45Z",
+        "createdAt": "2025-06-16T14:21:34Z",
+        "pushedAt": "2025-06-26T15:33:14Z",
         "defaultBranch": "main",
         "topics": []
       },
-      "codeowners": true,
+      "codeowners": false,
       "vulnerabilities": {
         "codeScanning": {
-          "total": 44,
-          "critical": 5,
-          "high": 29,
-          "medium": 10,
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
           "low": 0,
-          "openedLast30Days": 1,
+          "openedLast30Days": 0,
           "closedLast30Days": 0,
           "openedLast30DaysBySeverity": {
             "critical": 0,
             "high": 0,
-            "medium": 1,
+            "medium": 0,
             "low": 0,
             "info": 0
           },
@@ -1302,18 +1305,18 @@
             "info": 0
           },
           "aging": {
-            "oldestAge": 161,
-            "averageAge": 158,
+            "oldestAge": 0,
+            "averageAge": 0,
             "ageBuckets": {
               "0-7": 0,
-              "8-30": 1,
+              "8-30": 0,
               "31-90": 0,
-              "91-180": 43,
+              "91-180": 0,
               "180+": 0
             }
           },
           "mttr": 0,
-          "lastUpdated": "2025-11-22T12:51:02Z",
+          "lastUpdated": null,
           "enabled": true
         },
         "dependabot": {
@@ -1355,11 +1358,8 @@
           "enabled": false
         },
         "secretScanning": {
-          "total": 2,
-          "secretTypes": {
-            "aws_secret_access_key": 1,
-            "aws_access_key_id": 1
-          },
+          "total": 0,
+          "secretTypes": {},
           "openedLast30Days": 0,
           "closedLast30Days": 0,
           "openedLast30DaysBySeverity": {
@@ -1377,18 +1377,154 @@
             "info": 0
           },
           "aging": {
-            "oldestAge": 161,
-            "averageAge": 161,
+            "oldestAge": 0,
+            "averageAge": 0,
             "ageBuckets": {
               "0-7": 0,
               "8-30": 0,
               "31-90": 0,
-              "91-180": 2,
+              "91-180": 0,
               "180+": 0
             }
           },
           "mttr": 0,
-          "lastUpdated": "2025-08-12T16:22:26Z",
+          "lastUpdated": null,
+          "enabled": true
+        }
+      },
+      "engineeringManager": ""
+    },
+    {
+      "organization": "skyeshanohan",
+      "repository": "PR_Retriever",
+      "pod": [
+        "No Pod Selected"
+      ],
+      "environmentType": "No Environment Selected",
+      "vertical": "",
+      "description": "",
+      "language": "Python",
+      "status": "active",
+      "lastActivity": "2025-11-19",
+      "githubUrl": "https://github.com/skyeshanohan/PR_Retriever",
+      "_metadata": {
+        "stars": 0,
+        "forks": 0,
+        "openIssues": 0,
+        "createdAt": "2025-11-19T01:06:22Z",
+        "pushedAt": "2025-11-19T01:08:46Z",
+        "defaultBranch": "main",
+        "topics": []
+      },
+      "codeowners": false,
+      "vulnerabilities": {
+        "codeScanning": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "openedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "closedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "aging": {
+            "oldestAge": 0,
+            "averageAge": 0,
+            "ageBuckets": {
+              "0-7": 0,
+              "8-30": 0,
+              "31-90": 0,
+              "91-180": 0,
+              "180+": 0
+            }
+          },
+          "mttr": 0,
+          "lastUpdated": null,
+          "enabled": true
+        },
+        "dependabot": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "ecosystems": [],
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "openedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "closedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "aging": {
+            "oldestAge": 0,
+            "averageAge": 0,
+            "ageBuckets": {
+              "0-7": 0,
+              "8-30": 0,
+              "31-90": 0,
+              "91-180": 0,
+              "180+": 0
+            }
+          },
+          "mttr": 0,
+          "lastUpdated": null,
+          "enabled": false
+        },
+        "secretScanning": {
+          "total": 0,
+          "secretTypes": {},
+          "openedLast30Days": 0,
+          "closedLast30Days": 0,
+          "openedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "closedLast30DaysBySeverity": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "info": 0
+          },
+          "aging": {
+            "oldestAge": 0,
+            "averageAge": 0,
+            "ageBuckets": {
+              "0-7": 0,
+              "8-30": 0,
+              "31-90": 0,
+              "91-180": 0,
+              "180+": 0
+            }
+          },
+          "mttr": 0,
+          "lastUpdated": null,
           "enabled": true
         }
       },
@@ -1541,7 +1677,7 @@
       "description": "",
       "language": "HTML",
       "status": "active",
-      "lastActivity": "2025-12-05",
+      "lastActivity": "2025-12-06",
       "githubUrl": "https://github.com/skyeshanohan/github_pages",
       "_metadata": {
         "stars": 0,
@@ -1549,142 +1685,6 @@
         "openIssues": 0,
         "createdAt": "2025-11-01T15:01:28Z",
         "pushedAt": "2025-11-04T03:13:40Z",
-        "defaultBranch": "main",
-        "topics": []
-      },
-      "codeowners": false,
-      "vulnerabilities": {
-        "codeScanning": {
-          "total": 0,
-          "critical": 0,
-          "high": 0,
-          "medium": 0,
-          "low": 0,
-          "openedLast30Days": 0,
-          "closedLast30Days": 0,
-          "openedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "closedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "aging": {
-            "oldestAge": 0,
-            "averageAge": 0,
-            "ageBuckets": {
-              "0-7": 0,
-              "8-30": 0,
-              "31-90": 0,
-              "91-180": 0,
-              "180+": 0
-            }
-          },
-          "mttr": 0,
-          "lastUpdated": null,
-          "enabled": true
-        },
-        "dependabot": {
-          "total": 0,
-          "critical": 0,
-          "high": 0,
-          "medium": 0,
-          "low": 0,
-          "ecosystems": [],
-          "openedLast30Days": 0,
-          "closedLast30Days": 0,
-          "openedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "closedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "aging": {
-            "oldestAge": 0,
-            "averageAge": 0,
-            "ageBuckets": {
-              "0-7": 0,
-              "8-30": 0,
-              "31-90": 0,
-              "91-180": 0,
-              "180+": 0
-            }
-          },
-          "mttr": 0,
-          "lastUpdated": null,
-          "enabled": false
-        },
-        "secretScanning": {
-          "total": 0,
-          "secretTypes": {},
-          "openedLast30Days": 0,
-          "closedLast30Days": 0,
-          "openedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "closedLast30DaysBySeverity": {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0,
-            "info": 0
-          },
-          "aging": {
-            "oldestAge": 0,
-            "averageAge": 0,
-            "ageBuckets": {
-              "0-7": 0,
-              "8-30": 0,
-              "31-90": 0,
-              "91-180": 0,
-              "180+": 0
-            }
-          },
-          "mttr": 0,
-          "lastUpdated": null,
-          "enabled": true
-        }
-      },
-      "engineeringManager": ""
-    },
-    {
-      "organization": "skyeshanohan",
-      "repository": "PR_Retriever",
-      "pod": [
-        "No Pod Selected"
-      ],
-      "environmentType": "No Environment Selected",
-      "vertical": "",
-      "description": "",
-      "language": "Python",
-      "status": "active",
-      "lastActivity": "2025-11-19",
-      "githubUrl": "https://github.com/skyeshanohan/PR_Retriever",
-      "_metadata": {
-        "stars": 0,
-        "forks": 0,
-        "openIssues": 0,
-        "createdAt": "2025-11-19T01:06:22Z",
-        "pushedAt": "2025-11-19T01:08:46Z",
         "defaultBranch": "main",
         "topics": []
       },
